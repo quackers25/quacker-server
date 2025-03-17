@@ -17,10 +17,8 @@ public class UserFollowing {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    private User follwingUser;
+    private User followingUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
     private User followerUser;
 }

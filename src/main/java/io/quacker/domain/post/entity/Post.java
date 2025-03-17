@@ -1,6 +1,11 @@
 package io.quacker.domain.post.entity;
 
 import io.quacker.common.entity.BaseEntity;
+import io.quacker.domain.comment.entity.Comment;
+import io.quacker.domain.hashtagpost.entity.HashtagPost;
+import io.quacker.domain.like.entity.Like;
+import io.quacker.domain.postimage.entity.PostImage;
+import io.quacker.domain.postmention.entity.PostMention;
 import io.quacker.domain.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -26,9 +31,6 @@ public class Post extends BaseEntity {
 
     private int repostCount;
 
-    @OneToMany(mappedBy = "originPost")
-    private List<Post> replyPosts = new ArrayList<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POST_ID")
     private Post originPost;
@@ -36,4 +38,22 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")
     private User user;
+
+    @OneToMany(mappedBy = "originPost")
+    private List<Post> replyPosts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    private List<PostImage> postImages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    private List<PostMention> postMentions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    private List<HashtagPost> hashtagPosts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    private List<Like> likes = new ArrayList<>();
 }

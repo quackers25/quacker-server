@@ -1,7 +1,11 @@
 package io.quacker.domain.user.entity;
 
 import io.quacker.common.entity.BaseEntity;
+import io.quacker.domain.comment.entity.Comment;
+import io.quacker.domain.like.entity.Like;
 import io.quacker.domain.post.entity.Post;
+import io.quacker.domain.postmention.entity.PostMention;
+import io.quacker.domain.userfollowing.entitty.UserFollowing;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -48,5 +52,20 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<PostMention> postMentions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "followingUser")
+    private List<UserFollowing> userFollowings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "followerUser")
+    private List<UserFollowing> userFollowers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Like> likes = new ArrayList<>();
 }
 
