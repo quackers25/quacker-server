@@ -67,5 +67,13 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private List<PostLike> likes = new ArrayList<>();
+
+    public void addLike(PostLike like) {
+        this.likes.add(like);
+    }
+
+    public void removeLike(PostLike like) {
+        this.likes.remove(like);
+    }
 }
 
