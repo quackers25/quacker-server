@@ -2,15 +2,17 @@ package io.quacker.domain.user.service;
 
 import io.quacker.common.util.JwtTokenUtil;
 import io.quacker.domain.user.dao.UserRepositoy;
-import io.quacker.domain.user.dto.UserLoginDto;
-import io.quacker.domain.user.dto.UserCreateDto;
-import io.quacker.domain.user.dto.UserDto;
+import io.quacker.domain.user.dto.*;
 import io.quacker.domain.user.entity.User;
 import io.quacker.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -39,12 +41,11 @@ public class UserService {
         if (!rawPw.equals(rawConfirmPw)) {
             throw new CustomException("Invalid password", 500); //ToDo: 로그인 실패 객체 정의할 것
         }
-        if (!userRepositoy.existsByEmail(email)) {
+        if (userRepositoy.existsByEmail(email)) {
             throw new CustomException("Email exists", 500); //ToDo: 로그인 실패 객체 정의할 것
         }
 
-
-        User user = dto.toUserWtihHashedPassword(passwordEncoder.encode(rawPw));
+        User user = User.fromCreateDtoWithHashedPassword(dto, passwordEncoder.encode(rawPw));
 
         try {
             User result = userRepositoy.save(user);
@@ -79,7 +80,7 @@ public class UserService {
     /**
      * REQ_003	회원 탈퇴 요청
      */
-    public void withDraw() {}
+    public void requestWithdraw() {}
 
     /**
      * REQ_013	공개여부 토글
@@ -100,19 +101,72 @@ public class UserService {
 
     /**
      * REQ_006	아이디 찾기
+     * 이메일 찾기
+     * 가입한 이메일로 메시지 발솔
      */
-    public void findUser() {
+    public void findEmail() {}
 
+    /**
+     * REQ_007	아이디 중복 확인 기능
+     */
+    public boolean checkDuplicateEmail() {return false;}
+
+    /**
+     * REQ_008	이메일 중복 확인 기능
+     */
+    public boolean checkDuplicateUsername() {return false;}
+
+    /**
+     * REQ_011	프로필 조회
+     */
+    public UserDto getUserById(Long userId) {
+        return UserDto.from(userRepositoy.findById(userId)
+                .orElseThrow(() -> new CustomException("유저를 찾을 수 없음", 404)));
     }
 
-    /*
-    REQ_007	아이디 중복 확인 기능
-    REQ_008	이메일 중복 확인 기능
-    REQ_009	로그아웃
-    REQ_010	멘션
-    REQ_011	프로필 조회
-    REQ_012	프로필 수정
-    REQ_013	공개여부 토글
-
+    /**
+     * REQ_012	프로필 수정
      */
+    @Transactional
+    public UserDto updateUserProfile(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            UserUpdateDto dto
+    ) {
+        User user = customUserDetails.user();
+        user.updateProfile(
+                dto.name(),
+                dto.bio(),
+                dto.avatarImageUrl(),
+                dto.isLocked(),
+                dto.isPrivate()
+        );
+        return UserDto.from(user);
+    }
+
+   /**
+    * REQ_013	공개여부 토글
+    */
+   @Transactional
+   public void toggleVisibility(
+           CustomUserDetails customUserDetails
+   ) {
+       User user = customUserDetails.user();
+       user.updateVisibility(!user.isPrivate());
+   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
