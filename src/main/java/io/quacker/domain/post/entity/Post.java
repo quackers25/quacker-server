@@ -3,8 +3,8 @@ package io.quacker.domain.post.entity;
 import io.quacker.common.entity.BaseEntity;
 import io.quacker.domain.comment.entity.Comment;
 import io.quacker.domain.hashtagpost.entity.HashtagPost;
-import io.quacker.domain.like.entity.Like;
 import io.quacker.domain.postimage.entity.PostImage;
+import io.quacker.domain.postlike.entity.PostLike;
 import io.quacker.domain.postmention.entity.PostMention;
 import io.quacker.domain.user.entity.User;
 import jakarta.persistence.Entity;
@@ -55,5 +55,5 @@ public class Post extends BaseEntity {
     private List<HashtagPost> hashtagPosts = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
-    private List<Like> likes = new ArrayList<>();
+    private List<PostLike> likes = new ArrayList<>();
 }
