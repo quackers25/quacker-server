@@ -35,8 +35,11 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))  // iframe 허용하기 위하여
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/join").permitAll()
+                                .requestMatchers("/h2-console/**").permitAll() // H2 Console 접근 허용                                .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 )
                 .authenticationProvider(jwtTokenAuthenticationProvider)
                 .addFilterBefore(jwtTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
