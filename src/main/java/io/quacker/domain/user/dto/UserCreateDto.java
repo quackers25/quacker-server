@@ -11,20 +11,5 @@ public record UserCreateDto (
         String name,
         String bio,
         String avatarImageUrl,
-        boolean verified,
         boolean isPrivate
-) {
-
-    //Todo : Entity
-    public User toUserWtihHashedPassword(String hashedPw) {
-        return User.builder()
-                .email(email)
-                .password(hashedPw)
-                .name(name)
-                .bio(bio)
-                .avatarImageUrl(avatarImageUrl)
-                .verified(verified)
-                .isPrivate(isPrivate)
-                .build();
-    }
-}
+) {}

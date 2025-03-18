@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Builder
-public record UserDto(
+public record UserUpdateDto(
 
         String email,
 
@@ -27,15 +27,5 @@ public record UserDto(
 
         List<Post> posts
 ){
-    public static UserDto from(User user) {
-        return UserDto.builder()
-                .email(user.getEmail())
-                .name(user.getName())
-                .bio(user.getBio())
-                .avatarImageUrl(user.getAvatarImageUrl())
-                .verified(user.isVerified())
-                .isLocked(user.isLocked())
-                .isPrivate(user.isPrivate())
-                .build();
-    }
+
 }
