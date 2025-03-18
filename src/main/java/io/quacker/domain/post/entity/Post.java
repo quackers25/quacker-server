@@ -56,4 +56,12 @@ public class Post extends BaseEntity {
 
     @OneToMany(mappedBy = "post")
     private List<PostLike> likes = new ArrayList<>();
+
+    public void incrementLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decrementLikeCount() {
+        this.likeCount--;
+    }
 }

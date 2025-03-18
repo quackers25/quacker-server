@@ -105,5 +105,13 @@ public class User extends BaseEntity {
     public void changePassword(String password) {
         this.password = password;
     }
+
+    public void addLike(PostLike like) {
+        this.likes.add(like);
+    }
+
+    public void removeLike(PostLike like) {
+        this.likes.remove(like);
+    }
 }
 
