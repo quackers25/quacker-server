@@ -17,7 +17,7 @@ public class JwtTokenUtil {
     // 우선 하드 코딩
 //    @Value("$jwt.key")
     private static final String SECRET_KEY = "alksjdoiasnkljdbalskjdbalskjdhlakjshdljnalfgjksdbflkjshdfglksjndflkjsbgnldjkfbglskjdfbg";
-    private static final long EXPIRATION = 15 * 60; // 15분
+    private static final long EXPIRATION = 15 * 60 * 60;
 
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
@@ -42,7 +42,7 @@ public class JwtTokenUtil {
         return Long.parseLong(Jwts.parserBuilder()
                         .setSigningKey(key)
                         .build()
-                        .parseClaimsJwt(token)
+                        .parseClaimsJws(token)
                         .getBody()
                         .getSubject()); // sub
     }
@@ -54,7 +54,7 @@ public class JwtTokenUtil {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
-                .parseClaimsJwt(token)
+                .parseClaimsJws(token)
                 .getBody()
                 .get("email")
                 .toString();
@@ -74,7 +74,7 @@ public class JwtTokenUtil {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
-                .parseClaimsJwt(token)
+                .parseClaimsJws(token)
                 .getBody()
                 .getExpiration() // exp
                 .before(new Date());
