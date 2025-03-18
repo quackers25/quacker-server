@@ -69,17 +69,27 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<PostLike> likes = new ArrayList<>();
 
+    public void updateVisibility(boolean isPrivate) {
+        this.isPrivate = isPrivate;
+    }
 
-    public User from(UserCreateDto userCreateDto) {
+    public static User fromCreateDtoWithHashedPassword(UserCreateDto userCreateDto, String hashedPw) {
         return User.builder()
                 .email(userCreateDto.email())
-                .password(userCreateDto.password())
+                .password(hashedPw)
                 .name(userCreateDto.name())
                 .bio(userCreateDto.bio())
                 .avatarImageUrl(userCreateDto.avatarImageUrl())
-                .verified(userCreateDto.verified())
                 .isPrivate(userCreateDto.isPrivate())
                 .build();
+    }
+
+    public void updateProfile(String name, String bio, String avatarImageUrl, boolean isLocked, boolean isPrivate) {
+        this.name = name;
+        this.bio = bio;
+        this.avatarImageUrl = avatarImageUrl;
+        this.isLocked = isLocked;
+        this.isPrivate = isPrivate;
     }
 }
 
