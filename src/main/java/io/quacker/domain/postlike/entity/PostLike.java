@@ -3,16 +3,17 @@ package io.quacker.domain.postlike.entity;
 import io.quacker.common.entity.BaseEntity;
 import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.user.entity.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"user_id", "post_id"})
+})
 public class PostLike extends BaseEntity {
 
     @Id
@@ -20,10 +21,27 @@ public class PostLike extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "POST_ID")
+    @JoinColumn(name = "post_id")
     private Post post;
+
+    private PostLike(User user, Post post) {
+        this.user = user;
+        this.post = post;
+    }
+
+    public static PostLike of(User user, Post post) {
+        PostLike postLike = new PostLike(user, post);
+        post.incrementLikeCount();
+        user.addLike(postLike);
+        return postLike;
+    }
+
+    public void unlike() {
+        this.post.decrementLikeCount();
+        this.user.removeLike(this);
+    }
 }
