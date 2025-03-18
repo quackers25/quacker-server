@@ -1,4 +1,4 @@
-package io.quacker.domain.like.entity;
+package io.quacker.domain.postlike.entity;
 
 import io.quacker.common.entity.BaseEntity;
 import io.quacker.domain.post.entity.Post;
@@ -13,8 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "POST_LIKE")
-public class Like extends BaseEntity {
+public class PostLike extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
