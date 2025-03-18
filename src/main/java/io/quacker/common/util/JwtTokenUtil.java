@@ -1,6 +1,5 @@
 package io.quacker.common.util;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -12,12 +11,12 @@ import java.util.Date;
 import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class JwtTokenUtil {
 
     // 우선 하드 코딩
 //    @Value("$jwt.key")
-    private static final String SECRET_KEY = "123";
+    private static final String SECRET_KEY = "alksjdoiasnkljdbalskjdbalskjdhlakjshdljnalfgjksdbflkjshdfglksjndflkjsbgnldjkfbglskjdfbg";
     private static final long EXPIRATION = 15 * 60; // 15분
 
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
@@ -25,10 +24,9 @@ public class JwtTokenUtil {
     /**
      * JWT 토큰 생성 (사용자 ID, 이메일 포함)
      */
-    public String generateToken(Long userId, String username) {
+    public String generateToken(Long userId, String email, String name) {
         return Jwts.builder()
-                .setClaims(Map.of("username", username)) // email 저장
-                //TODO UUID 필요할듯
+                .setClaims(Map.of("email", email, "name", name)) // email 저장
                 .setSubject(userId.toString()) // 사용자 id 저장,
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
@@ -47,6 +45,19 @@ public class JwtTokenUtil {
                         .parseClaimsJwt(token)
                         .getBody()
                         .getSubject()); // sub
+    }
+    /**
+     * 비공개 claim email 사용
+     * JWT 토큰에서 사용자 email 추출
+     */
+    public String extractEmail(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJwt(token)
+                .getBody()
+                .get("email")
+                .toString();
     }
 
     /**
