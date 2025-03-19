@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -44,11 +43,10 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
         // 이메일이 존재하지않고 현재 SecurityContext에 인증 정보가 없는 경우 새로 토큰 발급
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(email);
 
             // 유효한 토근인가.
-            if (jwtTokenUtil.validateToken(token, userDetails.getUser().getId())) {
+            if (jwtTokenUtil.validateToken(token, userDetails.getUserId())) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails,
                                 null, // jwt, 생략
