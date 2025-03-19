@@ -17,8 +17,9 @@ public class PostController {
 
     // 모든 게시글 조회
     @GetMapping
-    public ResponseEntity<List<PostDto>> getAllPosts() {
-        return ResponseEntity.ok(postService.getAllPosts());
+    public ResponseEntity<List<PostDto>> getAllPosts(
+            @RequestParam(required = false, defaultValue = "newest") String sortBy) {
+        return ResponseEntity.ok(postService.getAllPosts(sortBy));
     }
 
     // 특정 게시글 상세 조회
@@ -29,14 +30,18 @@ public class PostController {
 
     // 특정 User ID 게시물 조회
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PostDto>> getPostsByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(postService.getPostsByUserId(userId));
+    public ResponseEntity<List<PostDto>> getPostsByUser(
+            @PathVariable Long userId,
+            @RequestParam(required = false, defaultValue = "newest") String sortBy) {
+        return ResponseEntity.ok(postService.getPostsByUserId(userId, sortBy));
     }
 
     // 게시글 검색
     @GetMapping("/search")
-    public ResponseEntity<List<PostDto>> searchPosts(@RequestParam String keyword) {
-        return ResponseEntity.ok(postService.searchPosts(keyword));
+    public ResponseEntity<List<PostDto>> searchPosts(
+            @RequestParam String keyword,
+            @RequestParam(required = false, defaultValue = "newest") String sortBy) {
+        return ResponseEntity.ok(postService.searchPosts(keyword, sortBy));
     }
 
     // 게시글 작성
