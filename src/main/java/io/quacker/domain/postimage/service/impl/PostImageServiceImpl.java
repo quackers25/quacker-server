@@ -33,13 +33,6 @@ public class PostImageServiceImpl implements PostImageService {
     @Override
     public PostImageDto addImageToPost(Long postId, String imageUrl) {
         Post post = findPostById(postId);
-
-        long imageCount = postImageRepository.countByPost(post);
-
-        if (imageCount >= 4) {
-            throw new CustomException("이미지는 최대 4개까지만 등록할 수 있습니다.", 400);
-        }
-
         PostImage postImage = PostImage.builder()
                 .imageUrl(imageUrl)
                 .post(post)
@@ -57,10 +50,10 @@ public class PostImageServiceImpl implements PostImageService {
         PostImage postImage = postImageRepository.findById(imageId)
                 .orElseThrow(() -> new CustomException("Image not found", 404));
 
-        postImage.updateImageUrl(newImageUrl);
+        PostImage updatedImage = postImage.updateImageUrl(newImageUrl);
+        PostImage savedImage = postImageRepository.save(updatedImage);
 
-
-        return PostImageDto.fromEntity(postImage);
+        return PostImageDto.fromEntity(savedImage);
     }
 
     // 이미지 삭제
