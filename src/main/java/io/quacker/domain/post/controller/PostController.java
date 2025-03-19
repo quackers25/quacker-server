@@ -1,0 +1,56 @@
+package io.quacker.domain.post.controller;
+
+import io.quacker.domain.post.dto.PostDto;
+import io.quacker.domain.post.service.PostService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/posts")
+@RequiredArgsConstructor
+public class PostController {
+
+    private final PostService postService;
+
+    // 모든 게시글 조회
+    @GetMapping
+    public ResponseEntity<List<PostDto>> getAllPosts() {
+        return ResponseEntity.ok(postService.getAllPosts());
+    }
+
+    // 특정 게시글 상세 조회
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostDto> getPost(@PathVariable Long postId) {
+        return ResponseEntity.ok(postService.getPost(postId));
+    }
+
+    // 게시글 작성
+    @PostMapping
+    public ResponseEntity<PostDto> addPost(@RequestParam Long userId, @RequestParam String text) {
+        return ResponseEntity.ok(postService.addPost(text, userId));
+    }
+
+    // 리포스트
+    @PostMapping("/{postId}")
+    public ResponseEntity<PostDto> retweetPost(@PathVariable Long postId, @RequestParam Long userId) {
+        return ResponseEntity.ok(postService.repost(postId, userId));
+    }
+
+    // 게시글 수정
+    @PatchMapping("/{postId}")
+    public ResponseEntity<PostDto> updatePost(
+            @PathVariable Long postId,
+            @RequestParam String newText) {
+        return ResponseEntity.ok(postService.updatePost(postId, newText));
+    }
+
+    // 게시글 삭제
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+        postService.deletePost(postId);
+        return ResponseEntity.noContent().build();
+    }
+}
