@@ -23,6 +23,9 @@ public class UserAuthController {
 
     /**
      * 로그인 엔드포인트
+     * @param userLoginDto
+     * @param errors
+     * @return ResponseEntity
      */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid UserLoginDto userLoginDto, Errors errors) {
@@ -36,7 +39,8 @@ public class UserAuthController {
     /**
      * 가입 엔드포인트
      * @param userCreateDto
-     * @return JWT 토큰 반환
+     * @param errors
+     * @return ResponseEntity
      */
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody @Valid UserCreateDto userCreateDto, Errors errors) {
