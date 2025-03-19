@@ -4,6 +4,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -11,15 +12,18 @@ import java.util.Date;
 import java.util.Map;
 
 @Component
-//@RequiredArgsConstructor
 public class JwtTokenUtil {
 
-    // 우선 하드 코딩
-//    @Value("$jwt.key")
-    private static final String SECRET_KEY = "alksjdoiasnkljdbalskjdbalskjdhlakjshdljnalfgjksdbflkjshdfglksjndflkjsbgnldjkfbglskjdfbg";
-    private static final long EXPIRATION = 15 * 60 * 60;
+    private final Long expiration;
+    private final Key key;
 
-    private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    public JwtTokenUtil(
+            @Value("${jwt.secret}") String secretKey,
+            @Value("${jwt.expiration}") long expiration
+    ) {
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        this.expiration = expiration;
+    }
 
     /**
      * JWT 토큰 생성 (사용자 ID, 이메일 포함)
@@ -29,7 +33,7 @@ public class JwtTokenUtil {
                 .setClaims(Map.of("email", email, "name", name)) // email 저장
                 .setSubject(userId.toString()) // 사용자 id 저장,
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
