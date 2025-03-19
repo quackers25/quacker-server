@@ -112,6 +112,14 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public boolean deletePost(Long postId) {
         Post post = findPostById(postId);
+
+        // 리포스트인 경우 원본 게시글의 repostCount 감소
+        if (post.getOriginPost() != null) {
+            Post originPost = post.getOriginPost();
+            originPost.decrementRepostCount();
+            postRepository.save(originPost); // 원본 게시글 수정 사항 반영
+        }
+
         postRepository.delete(post);
         return true;
     }
