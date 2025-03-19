@@ -7,17 +7,20 @@ import io.quacker.domain.postimage.entity.PostImage;
 import io.quacker.domain.postlike.entity.PostLike;
 import io.quacker.domain.postmention.entity.PostMention;
 import io.quacker.domain.user.entity.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
 @Entity
 public class Post extends BaseEntity {
 
@@ -40,12 +43,12 @@ public class Post extends BaseEntity {
     private User user;
 
     @OneToMany(mappedBy = "originPost")
-    private List<Post> replyPosts = new ArrayList<>();
+    private List<Post> reposts = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostImage> postImages = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
@@ -56,4 +59,16 @@ public class Post extends BaseEntity {
 
     @OneToMany(mappedBy = "post")
     private List<PostLike> likes = new ArrayList<>();
+
+    /** ✅ 리트윗 수 증가 */
+    public void incrementRepostCount() {
+        this.repostCount++;
+    }
+
+    /** ✅ 리트윗 수 감소 */
+    public void decrementRepostCount() {
+        if (this.repostCount > 0) {
+            this.repostCount--;
+        }
+    }
 }
