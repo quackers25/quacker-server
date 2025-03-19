@@ -31,6 +31,24 @@ public class PostServiceImpl implements PostService {
         return PostDto.from(findPostById(postId));
     }
 
+    // 특정 User ID 게시물 조회
+    @Transactional
+    @Override
+    public List<PostDto> getPostsByUserId(Long userId) {
+        User user = findUserById(userId);
+        List<Post> userPosts = postRepository.findByUser(user);
+
+        return PostDto.of(userPosts);
+    }
+
+    // 게시글 검색
+    @Transactional
+    @Override
+    public List<PostDto> searchPosts(String keyword) {
+        List<Post> searchResults = postRepository.findByTextContainingIgnoreCase(keyword);
+        return PostDto.of(searchResults);
+    }
+
     // 새 게시글 작성
     @Transactional
     @Override

@@ -27,6 +27,18 @@ public class PostController {
         return ResponseEntity.ok(postService.getPost(postId));
     }
 
+    // 특정 User ID 게시물 조회
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<PostDto>> getPostsByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(postService.getPostsByUserId(userId));
+    }
+
+    // 게시글 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<PostDto>> searchPosts(@RequestParam String keyword) {
+        return ResponseEntity.ok(postService.searchPosts(keyword));
+    }
+
     // 게시글 작성
     @PostMapping
     public ResponseEntity<PostDto> addPost(@RequestParam Long userId, @RequestParam String text) {
