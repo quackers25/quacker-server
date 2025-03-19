@@ -79,6 +79,10 @@ public class User extends BaseEntity {
         this.isPrivate = isPrivate;
     }
 
+    public void freeze() { this.isLocked = false; }
+
+    public void unfreeze() { this.isLocked = true; }
+
     public static User fromCreateDtoWithHashedPassword(UserCreateDto userCreateDto, String hashedPw) {
         return User.builder()
                 .email(userCreateDto.email())
@@ -96,6 +100,10 @@ public class User extends BaseEntity {
         this.avatarImageUrl = avatarImageUrl;
         this.isLocked = isLocked;
         this.isPrivate = isPrivate;
+    }
+
+    public void changePassword(String password) {
+        this.password = password;
     }
 }
 
