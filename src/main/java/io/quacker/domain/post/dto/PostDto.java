@@ -1,12 +1,13 @@
 package io.quacker.domain.post.dto;
 
 import io.quacker.domain.post.entity.Post;
-import io.quacker.domain.postimage.dto.PostImageDto;
+import io.quacker.domain.user.dto.UserDto;
+import lombok.Builder;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Builder
 public record PostDto(
         Long id,
         String text,
@@ -23,20 +24,20 @@ public record PostDto(
 ) {
     // Post 엔티티를 PostDto로 변환하는 정적 팩토리 메서드
     public static PostDto from(Post post) {
-        return new PostDto(
-                post.getId(),
-                post.getText(),
-                post.getLikeCount(),
-                post.getRepostCount(),
-                new UserDto(post.getUser().getId(), post.getUser().getName()),
-                Optional.ofNullable(post.getOriginPost()).map(PostDto::from).orElse(null), // 리트윗 처리
-                post.getReposts().stream().map(PostDto::from).collect(Collectors.toList()), // 답글 목록
-                post.getComments().stream().map(comment -> new CommentDto(comment.getId(), comment.getText())).collect(Collectors.toList()),
-                post.getPostImages().stream().map(img -> new PostImageDto(img.getId(), img.getImageUrl())).collect(Collectors.toList()),
-                post.getPostMentions().stream().map(mention -> new PostMentionDto(mention.getId(), mention.getMentionedUser().getId())).collect(Collectors.toList()),
-                post.getHashtagPosts().stream().map(tag -> new HashtagPostDto(tag.getId(), tag.getHashtag().getTag())).collect(Collectors.toList()),
-                post.getLikes().stream().map(like -> new PostLikeDto(like.getId(), like.getUser().getId())).collect(Collectors.toList())
-        );
+        return PostDto.builder()
+                .id(post.getId())
+                .text(post.getText())
+                .likeCount(post.getLikeCount())
+                .repostCount(post.getRepostCount())
+                .user(UserDto.from(post.getUser()))
+                .originPost(post.getOriginPost() != null ? PostDto.from(post.getOriginPost()) : null)
+                .reposts(post.getReposts().stream().map(PostDto::from).toList())
+                .comments(post.getComments().stream().map(comment -> new CommentDto(comment.getId(), comment.getText())).toList())
+                .postImages(post.getPostImages().stream().map(img -> new PostImageDto(img.getId(), img.getImageUrl())).toList())
+                .postMentions(post.getPostMentions().stream().map(mention -> new PostMentionDto(mention.getId(), mention.getMentionedUser().getId())).toList())
+                .hashtagPosts(post.getHashtagPosts().stream().map(tag -> new HashtagPostDto(tag.getId(), tag.getHashtag().getTag())).toList())
+                .likes(post.getLikes().stream().map(like -> new PostLikeDto(like.getId(), like.getUser().getId())).toList())
+                .build();
     }
 
     // List<Post>를 List<PostDto>로 변환하는 정적 팩토리 메서드
