@@ -45,27 +45,33 @@ public class User extends BaseEntity {
 
     private String avatarImageUrl;
 
-    private boolean verified;
+    private boolean isVerified;
 
     private boolean isLocked;
 
     private boolean isPrivate;
 
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<Post> posts = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<Comment> comments = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<PostMention> postMentions = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "followingUser")
     private List<UserFollowing> userFollowings = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "followerUser")
     private List<UserFollowing> userFollowers = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<PostLike> likes = new ArrayList<>();
 
