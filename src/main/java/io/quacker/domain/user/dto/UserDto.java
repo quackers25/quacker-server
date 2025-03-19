@@ -3,9 +3,7 @@ package io.quacker.domain.user.dto;
 import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.user.entity.User;
 import lombok.Builder;
-import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -19,7 +17,7 @@ public record UserDto(
 
         String avatarImageUrl,
 
-        boolean verified,
+        boolean isVerified,
 
         boolean isLocked, // 정지
 
@@ -33,7 +31,7 @@ public record UserDto(
                 .name(user.getName())
                 .bio(user.getBio())
                 .avatarImageUrl(user.getAvatarImageUrl())
-                .verified(user.isVerified())
+                .isVerified(user.isVerified())
                 .isLocked(user.isLocked())
                 .isPrivate(user.isPrivate())
                 .build();
