@@ -5,6 +5,7 @@ import io.quacker.domain.comment.entity.Comment;
 import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.postlike.entity.PostLike;
 import io.quacker.domain.postmention.entity.PostMention;
+import io.quacker.domain.user.dto.UserCreateDto;
 import io.quacker.domain.userfollowing.entitty.UserFollowing;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,28 +45,57 @@ public class User extends BaseEntity {
 
     private String avatarImageUrl;
 
-    private boolean verified;
+    private boolean isVerified;
 
     private boolean isLocked;
 
     private boolean isPrivate;
 
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<Post> posts = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<Comment> comments = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<PostMention> postMentions = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "followingUser")
     private List<UserFollowing> userFollowings = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "followerUser")
     private List<UserFollowing> userFollowers = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<PostLike> likes = new ArrayList<>();
+
+    public void updateVisibility(boolean isPrivate) {
+        this.isPrivate = isPrivate;
+    }
+
+    public static User fromCreateDtoWithHashedPassword(UserCreateDto userCreateDto, String hashedPw) {
+        return User.builder()
+                .email(userCreateDto.email())
+                .password(hashedPw)
+                .name(userCreateDto.name())
+                .bio(userCreateDto.bio())
+                .avatarImageUrl(userCreateDto.avatarImageUrl())
+                .isPrivate(userCreateDto.isPrivate())
+                .build();
+    }
+
+    public void updateProfile(String name, String bio, String avatarImageUrl, boolean isLocked, boolean isPrivate) {
+        this.name = name;
+        this.bio = bio;
+        this.avatarImageUrl = avatarImageUrl;
+        this.isLocked = isLocked;
+        this.isPrivate = isPrivate;
+    }
 }
 
