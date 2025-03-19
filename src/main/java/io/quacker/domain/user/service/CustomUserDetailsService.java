@@ -5,7 +5,6 @@ import io.quacker.domain.user.dto.CustomUserDetails;
 import io.quacker.domain.user.entity.User;
 import io.quacker.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
