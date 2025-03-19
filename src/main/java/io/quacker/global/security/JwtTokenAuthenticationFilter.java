@@ -48,7 +48,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
             CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(email);
 
             // 유효한 토근인가.
-            if (jwtTokenUtil.validateToken(token, userDetails.user().getId())) {
+            if (jwtTokenUtil.validateToken(token, userDetails.getUser().getId())) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails,
                                 null, // jwt, 생략
