@@ -19,7 +19,7 @@ public record UserUpdateDto(
 
         String avatarImageUrl,
 
-        boolean verified,
+        boolean isVerified,
 
         boolean isLocked, // 정지
 

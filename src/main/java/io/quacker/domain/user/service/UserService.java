@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
     private final UserRepositoy userRepositoy;
@@ -39,10 +38,10 @@ public class UserService {
          */
 
         if (!rawPw.equals(rawConfirmPw)) {
-            throw new CustomException("Invalid password", 500); //ToDo: 로그인 실패 객체 정의할 것
+            throw new CustomException("Invalid password", 500);
         }
         if (userRepositoy.existsByEmail(email)) {
-            throw new CustomException("Email exists", 500); //ToDo: 로그인 실패 객체 정의할 것
+            throw new CustomException("Email exists", 500);
         }
 
         User user = User.fromCreateDtoWithHashedPassword(dto, passwordEncoder.encode(rawPw));
@@ -51,7 +50,7 @@ public class UserService {
             User result = userRepositoy.save(user);
             return UserDto.from(result);
         } catch (Exception e){
-            throw new CustomException("Failed to save user", 500); //ToDo: 저장 실패 객체 정의할 것
+            throw new CustomException("Failed to save user", 500);
         }
     }
 
@@ -132,7 +131,7 @@ public class UserService {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             UserUpdateDto dto
     ) {
-        User user = customUserDetails.user();
+        User user = customUserDetails.getUser();
         user.updateProfile(
                 dto.name(),
                 dto.bio(),
@@ -150,7 +149,7 @@ public class UserService {
    public void toggleVisibility(
            CustomUserDetails customUserDetails
    ) {
-       User user = customUserDetails.user();
+       User user = customUserDetails.getUser();
        user.updateVisibility(!user.isPrivate());
    }
 }
