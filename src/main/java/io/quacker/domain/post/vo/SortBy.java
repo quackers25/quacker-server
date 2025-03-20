@@ -1,4 +1,4 @@
-package io.quacker.domain.post;
+package io.quacker.domain.post.vo;
 
 import org.springframework.data.domain.Sort;
 
