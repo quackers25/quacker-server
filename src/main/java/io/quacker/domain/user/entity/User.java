@@ -79,9 +79,13 @@ public class User extends BaseEntity {
         this.isPrivate = isPrivate;
     }
 
-    public void freeze() { this.isLocked = false; }
+    public void freeze() { 
+        this.isLocked = true; 
+    }
 
-    public void unfreeze() { this.isLocked = true; }
+    public void unfreeze() { 
+        this.isLocked = false; 
+    }
 
     public static User fromCreateDtoWithHashedPassword(UserCreateDto userCreateDto, String hashedPw) {
         return User.builder()
