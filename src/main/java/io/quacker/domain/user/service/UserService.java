@@ -46,16 +46,20 @@ public class UserService {
          */
 
         if (!rawPw.equals(rawConfirmPw)) {
-            throw new CustomException("비밀번호가 일치하지 않음", 400);
+            throw new CustomException("Invalid password", 500);
         }
         if (userRepository.existsByEmail(email)) {
-            throw new CustomException("사용할 수 없는 이메일", 409);
+            throw new CustomException("Email exists", 500);
         }
 
         User user = User.fromCreateDtoWithHashedPassword(dto, passwordEncoder.encode(rawPw));
 
-        User result = userRepository.save(user);
-        return UserDto.from(result);
+        try {
+            User result = userRepository.save(user);
+            return UserDto.from(result);
+        } catch (Exception e){
+            throw new CustomException("Failed to save user", 500);
+        }
     }
 
     /**
@@ -248,7 +252,7 @@ public class UserService {
    }
 
    public User findByEmail(String email) {
-       return userRepositoy.findByEmail(email)
+       return userRepository.findByEmail(email)
                .orElseThrow(() -> new CustomException("User not found with email: " + email, 404));
    }
 }

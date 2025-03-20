@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class PostLikeService {
 
     private final PostLikeRepository postLikeRepository;
@@ -19,21 +18,18 @@ public class PostLikeService {
     public void toggleLike(User user, Post post) {
         postLikeRepository.findByUserAndPost(user, post)
                 .ifPresentOrElse(
-                    this::unlikePost,
-                    () -> likePost(user, post)
+                    postLike -> {
+                        postLike.unlike();
+                        postLikeRepository.delete(postLike);
+                    },
+                    () -> {
+                        PostLike postLike = PostLike.of(user, post);
+                        postLikeRepository.save(postLike);
+                    }
                 );
     }
 
-    private void likePost(User user, Post post) {
-        PostLike postLike = PostLike.of(user, post);
-        postLikeRepository.save(postLike);
-    }
-
-    private void unlikePost(PostLike postLike) {
-        postLike.unlike();
-        postLikeRepository.delete(postLike);
-    }
-
+    @Transactional(readOnly = true)
     public boolean hasUserLikedPost(User user, Post post) {
         return postLikeRepository.existsByUserAndPost(user, post);
     }

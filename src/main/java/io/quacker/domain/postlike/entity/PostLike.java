@@ -31,11 +31,11 @@ public class PostLike extends BaseEntity {
     private PostLike(User user, Post post) {
         this.user = user;
         this.post = post;
+        post.incrementLikeCount();
     }
 
     public static PostLike of(User user, Post post) {
         PostLike postLike = new PostLike(user, post);
-        post.incrementLikeCount();
         user.addLike(postLike);
         return postLike;
     }
