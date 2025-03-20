@@ -15,19 +15,30 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import lombok.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(toBuilder = true)
 public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String text;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    private int likeCount;
+    private String content;
+
+    @Builder.Default
+    private int likeCount = 0;
 
     private int repostCount;
 
@@ -35,14 +46,11 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "POST_ID")
     private Post originPost;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    private User user;
-
     @OneToMany(mappedBy = "originPost")
     private List<Post> replyPosts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @Builder.Default
+    @OneToMany(mappedBy = "post", cascade = jakarta.persistence.CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
@@ -54,7 +62,8 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post")
     private List<HashtagPost> hashtagPosts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @Builder.Default
+    @OneToMany(mappedBy = "post", cascade = jakarta.persistence.CascadeType.ALL)
     private List<PostLike> likes = new ArrayList<>();
 
     public void incrementLikeCount() {
