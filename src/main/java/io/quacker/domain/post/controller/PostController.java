@@ -1,6 +1,6 @@
 package io.quacker.domain.post.controller;
 
-import io.quacker.domain.post.SortBy;
+import io.quacker.domain.post.vo.SortBy;
 import io.quacker.domain.post.dto.PostDto;
 import io.quacker.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
