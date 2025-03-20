@@ -73,4 +73,9 @@ public class Post extends BaseEntity {
             this.likeCount--;
         }
     }
+
+    // 게시글 업데이트
+    public void updateText(String newText) {
+        this.text = newText;
+    }
 }
