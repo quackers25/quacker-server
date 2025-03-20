@@ -20,8 +20,8 @@ public class UserController {
     private final UserService userService;
 
     @PatchMapping("/visibility")
-    public ResponseEntity<?> toggleVisibility(@AuthenticationPrincipal CustomUserDetails customUserDetails){
-        userService.toggleVisibility(customUserDetails);
+    public ResponseEntity<?> toggleVisibility(){
+        userService.toggleVisibility();
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("result", true));
     }
 }
