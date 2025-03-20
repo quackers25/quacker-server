@@ -1,15 +1,15 @@
 package io.quacker.domain.post.service.impl;
 
+import io.quacker.domain.post.SortBy;
 import io.quacker.domain.post.dao.PostRepository;
 import io.quacker.domain.post.dto.PostDto;
 import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.post.service.PostService;
 import io.quacker.domain.user.entity.User;
-import io.quacker.domain.user.dao.UserRepository;
+import io.quacker.domain.user.service.UserService;
 import io.quacker.global.exception.CustomException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -18,13 +18,13 @@ import java.util.List;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     // 모든 게시물 조회
     @Transactional
     @Override
-    public List<PostDto> getAllPosts(String sortBy) {
-        List<Post> posts = postRepository.findAll(getSortBy(sortBy));
+    public List<PostDto> getAllPosts(SortBy sortBy) {
+        List<Post> posts = postRepository.findAll(sortBy.getSort());
         return PostDto.of(posts);
     }
 
@@ -37,9 +37,9 @@ public class PostServiceImpl implements PostService {
     // 특정 User ID 게시물 조회
     @Transactional
     @Override
-    public List<PostDto> getPostsByUserId(Long userId, String sortBy) {
-        User user = findUserById(userId);
-        List<Post> userPosts = postRepository.findByUser(user, getSortBy(sortBy));
+    public List<PostDto> getPostsByUserId(SortBy sortBy) {
+        User user = userService.getCurrentUser();
+        List<Post> userPosts = postRepository.findByUser(user, sortBy.getSort());
 
         return PostDto.of(userPosts);
     }
@@ -47,16 +47,16 @@ public class PostServiceImpl implements PostService {
     // 게시글 검색
     @Transactional
     @Override
-    public List<PostDto> searchPosts(String keyword, String sortBy) {
-        List<Post> searchResults = postRepository.findByTextContainingIgnoreCase(keyword, getSortBy(sortBy));
+    public List<PostDto> searchPosts(String keyword, SortBy sortBy) {
+        List<Post> searchResults = postRepository.findByTextContainingIgnoreCase(keyword, sortBy.getSort());
         return PostDto.of(searchResults);
     }
 
     // 새 게시글 작성
     @Transactional
     @Override
-    public PostDto addPost(String text, Long userId) {
-        User user = findUserById(userId);
+    public PostDto addPost(String text) {
+        User user = userService.getCurrentUser();
 
         Post newPost = Post.builder()
                 .text(text)
@@ -69,8 +69,8 @@ public class PostServiceImpl implements PostService {
     // 리포스트
     @Transactional
     @Override
-    public PostDto repost(Long postId, Long userId) {
-        User user = findUserById(userId);
+    public PostDto repost(Long postId) {
+        User user = userService.getCurrentUser();
         Post originPost = findPostById(postId);
 
         Post retweet = postRepository.save(Post.builder()
@@ -128,19 +128,6 @@ public class PostServiceImpl implements PostService {
     private Post findPostById(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException("Post not found", 404));
-    }
-
-    /**  사용자 ID로 조회하는 유틸리티 메서드 */
-    private User findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException("User not found", 404));
-    }
-
-    private Sort getSortBy(String sortBy) {
-        if ("likes".equalsIgnoreCase(sortBy)) {
-            return Sort.by(Sort.Direction.DESC, "likeCount"); // 좋아요순 정렬
-        }
-        return Sort.by(Sort.Direction.DESC, "createdAt"); // 최신순 정렬 (기본값)
     }
 
 }
