@@ -246,6 +246,11 @@ public class UserService {
        return userRepository.findById(userId)
                .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
    }
+
+   public User findByEmail(String email) {
+       return userRepositoy.findByEmail(email)
+               .orElseThrow(() -> new CustomException("User not found with email: " + email, 404));
+   }
 }
 
 
