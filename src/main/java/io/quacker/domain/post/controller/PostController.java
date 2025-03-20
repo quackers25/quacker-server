@@ -1,5 +1,6 @@
 package io.quacker.domain.post.controller;
 
+import io.quacker.domain.post.SortBy;
 import io.quacker.domain.post.dto.PostDto;
 import io.quacker.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class PostController {
     // 모든 게시글 조회
     @GetMapping
     public ResponseEntity<List<PostDto>> getAllPosts(
-            @RequestParam(required = false, defaultValue = "newest") String sortBy) {
+            @RequestParam(required = false, defaultValue = "newest") SortBy sortBy) {
         return ResponseEntity.ok(postService.getAllPosts(sortBy));
     }
 
@@ -31,29 +32,28 @@ public class PostController {
     // 특정 User ID 게시물 조회
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<PostDto>> getPostsByUser(
-            @PathVariable Long userId,
-            @RequestParam(required = false, defaultValue = "newest") String sortBy) {
-        return ResponseEntity.ok(postService.getPostsByUserId(userId, sortBy));
+            @RequestParam(required = false, defaultValue = "newest") SortBy sortBy) {
+        return ResponseEntity.ok(postService.getPostsByUserId(sortBy));
     }
 
     // 게시글 검색
     @GetMapping("/search")
     public ResponseEntity<List<PostDto>> searchPosts(
             @RequestParam String keyword,
-            @RequestParam(required = false, defaultValue = "newest") String sortBy) {
+            @RequestParam(required = false, defaultValue = "newest") SortBy sortBy) {
         return ResponseEntity.ok(postService.searchPosts(keyword, sortBy));
     }
 
     // 게시글 작성
     @PostMapping
-    public ResponseEntity<PostDto> addPost(@RequestParam Long userId, @RequestParam String text) {
-        return ResponseEntity.ok(postService.addPost(text, userId));
+    public ResponseEntity<PostDto> addPost(@RequestParam String text) {
+        return ResponseEntity.ok(postService.addPost(text));
     }
 
     // 리포스트
     @PostMapping("/{postId}")
-    public ResponseEntity<PostDto> retweetPost(@PathVariable Long postId, @RequestParam Long userId) {
-        return ResponseEntity.ok(postService.repost(postId, userId));
+    public ResponseEntity<PostDto> retweetPost(@PathVariable Long postId) {
+        return ResponseEntity.ok(postService.repost(postId));
     }
 
     // 게시글 수정
