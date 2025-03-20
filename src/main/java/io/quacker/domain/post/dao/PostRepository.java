@@ -15,12 +15,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // 특정 사용자의 게시글 조회
     List<Post> findByUser(User user, Sort sort);
 
-    // 특정 원본 게시글의 리트윗(공유) 목록 조회
-    List<Post> findByOriginPost(Post originPost);
-
-    // 특정 사용자의 최신 게시글 리스트 (최신순 정렬)
-    List<Post> findByUserOrderByCreatedAtDesc(User user);
-
     // 특정 키워드가 포함된 게시글 찾기 (대소문자 구분 없이 키워드 검색)
     List<Post> findByTextContainingIgnoreCase(String keyword, Sort sort);
 }
