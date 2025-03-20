@@ -42,9 +42,6 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "USER_ID")
     private User user;
 
-    @OneToMany(mappedBy = "originPost")
-    private List<Post> reposts = new ArrayList<>();
-
     @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<>();
 
