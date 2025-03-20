@@ -1,6 +1,6 @@
 package io.quacker.domain.post.service.impl;
 
-import io.quacker.domain.post.SortBy;
+import io.quacker.domain.post.vo.SortBy;
 import io.quacker.domain.post.dao.PostRepository;
 import io.quacker.domain.post.dto.PostDto;
 import io.quacker.domain.post.entity.Post;
@@ -93,18 +93,9 @@ public class PostServiceImpl implements PostService {
     public PostDto updatePost(Long postId, String newText) {
         Post post = findPostById(postId);
 
-        // 기존 객체를 변경하는 대신, 새로운 객체를 생성 후 저장
-        Post updatedPost = postRepository.save(Post.builder()
-                .id(post.getId())  // 기존 ID 유지
-                .text(newText)  // 새 텍스트 설정
-                .user(post.getUser())  // 작성자 유지
-                .originPost(post.getOriginPost())  // 리트윗 원본 유지
-                .likeCount(post.getLikeCount()) // 기존 좋아요 수 유지
-                .repostCount(post.getRepostCount()) // 기존 리트윗 수 유지
-                .build()
-        );
+        post.updateText(newText);
 
-        return PostDto.from(updatedPost);
+        return PostDto.from(post);
     }
 
 
