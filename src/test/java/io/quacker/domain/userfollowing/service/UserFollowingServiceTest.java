@@ -43,7 +43,6 @@ class UserFollowingServiceTest {
 
     User followee;
 
-    User followee2;
 
     @BeforeEach
     void init() {
@@ -58,15 +57,6 @@ class UserFollowingServiceTest {
 
         followee = User.builder()
             .id(2L)
-            .name("followee")
-            .password("password")
-            .email("email")
-            .bio("bio")
-            .avatarImageUrl("https://example.com/image.jpg")
-            .build();
-
-        followee2 = User.builder()
-            .id(3L)
             .name("followee")
             .password("password")
             .email("email")
@@ -117,6 +107,15 @@ class UserFollowingServiceTest {
     @DisplayName("팔로잉 목록 조회 테스트")
     void getFollowingListByUserIdTest() {
 
+        User followee2 = User.builder()
+            .id(3L)
+            .name("followee2")
+            .password("password")
+            .email("email")
+            .bio("bio")
+            .avatarImageUrl("https://example.com/image.jpg")
+            .build();
+
         List<UserFollowing> userFollowings = new ArrayList<>(List.of(
             UserFollowing.builder()
                 .followingUser(user)
@@ -132,20 +131,42 @@ class UserFollowingServiceTest {
         List<FollowResponseDto> followingList = userFollowingService.getAllFollowingUserId(user.getId());
 
         assertThat(followingList.size()).isEqualTo(2);
+
+        assertThat(followingList)
+            .extracting(FollowResponseDto::name)
+            .contains(followee.getName(), followee2.getName());
     }
 
     @Test
     @DisplayName("팔로어 목록 조회 테스트")
     void getFollowerListByUserIdTest() {
 
+        User followingUser1 = User.builder()
+            .id(4L)
+            .name("followingUser1")
+            .password("password")
+            .email("email")
+            .bio("bio")
+            .avatarImageUrl("https://example.com/image.jpg")
+            .build();
+
+        User followingUser2 = User.builder()
+            .id(5L)
+            .name("followingUser1")
+            .password("password")
+            .email("email")
+            .bio("bio")
+            .avatarImageUrl("https://example.com/image.jpg")
+            .build();
+
         List<UserFollowing> userFollowings = new ArrayList<>(List.of(
             UserFollowing.builder()
-                .followingUser(user)
-                .followerUser(followee)
+                .followingUser(followingUser1)
+                .followerUser(user)
                 .build(),
             UserFollowing.builder()
-                .followingUser(user)
-                .followerUser(followee2)
+                .followingUser(followingUser2)
+                .followerUser(user)
                 .build()));
 
         when(userFollowingRepository.findByFollowerUserId(user.getId())).thenReturn(userFollowings);
@@ -153,5 +174,9 @@ class UserFollowingServiceTest {
         List<FollowResponseDto> followerList = userFollowingService.getAllFollowerByUserId(user.getId());
 
         assertThat(followerList.size()).isEqualTo(2);
+
+        assertThat(followerList)
+            .extracting(FollowResponseDto::name)
+            .contains(followingUser1.getName(), followingUser2.getName());
     }
 }
