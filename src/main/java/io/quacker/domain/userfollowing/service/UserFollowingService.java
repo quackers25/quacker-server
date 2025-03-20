@@ -1,8 +1,8 @@
 package io.quacker.domain.userfollowing.service;
 
-import io.quacker.domain.user.dao.UserRepositoy;
-import io.quacker.domain.user.dto.CustomUserDetails;
+import io.quacker.domain.user.dao.UserRepository;
 import io.quacker.domain.user.entity.User;
+import io.quacker.domain.user.service.UserService;
 import io.quacker.domain.userfollowing.dao.UserFollowingRepository;
 import io.quacker.domain.userfollowing.dto.FollowRequestDto;
 import io.quacker.domain.userfollowing.dto.FollowResponseDto;
@@ -19,28 +19,43 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserFollowingService {
 
     private final UserFollowingRepository userFollowingRepository;
-    private final UserRepositoy userRepositoy;
+    private final UserRepository userRepository;
+
+    private final UserService userService;
 
     @Transactional
-    public void followingUser(CustomUserDetails customUserDetails,
-                              FollowRequestDto followRequestDto) {
+    public void followingUser(FollowRequestDto followRequestDto) {
 
-        User followee = userRepositoy.findById(followRequestDto.followingUserId())
+        User user = userService.getCurrentUser();
+
+        User followee = userRepository.findById(followRequestDto.followingUserId())
             .orElseThrow(() -> new CustomException("not found user", HttpStatus.NOT_FOUND.value()));
 
         UserFollowing userFollowing = new UserFollowing();
 
-        userFollowing.addFollowing(customUserDetails.getUser(), followee);
+        userFollowing.addFollowing(user, followee);
 
         userFollowingRepository.save(userFollowing);
     }
 
+    @Transactional
+    public void unfollowingUser(Long followingUserId) {
+
+        User followee = userRepository.findById(followingUserId)
+            .orElseThrow(() -> new CustomException("not found user", HttpStatus.NOT_FOUND.value()));
+
+        User user = userService.getCurrentUser();
+
+        UserFollowing userFollowing = userFollowingRepository.findByFollowerUserIdAndFollowingUserId(followee.getId(), user.getId())
+            .orElseThrow(() -> new CustomException("not found follow", HttpStatus.NOT_FOUND.value()));
+
+        userFollowingRepository.delete(userFollowing);
+    }
+
+    //api/v1/followings/{userId}
     @Transactional(readOnly = true)
-    public List<FollowResponseDto> getAllFollowing(CustomUserDetails customUserDetails) {
-
-        User user = customUserDetails.getUser();
-
-        List<UserFollowing> userFollowings = user.getUserFollowings();
+    public List<FollowResponseDto> getAllFollowingUserId(Long userId) {
+        List<UserFollowing> userFollowings = userFollowingRepository.findByFollowingUserId(userId);
 
         List<User> users = userFollowings.stream().map(UserFollowing::getFollowerUser).toList();
 
@@ -48,29 +63,12 @@ public class UserFollowingService {
     }
 
     @Transactional(readOnly = true)
-    public List<FollowResponseDto> getAllFollower(CustomUserDetails customUserDetails) {
-        User user = customUserDetails.getUser();
-
-        List<UserFollowing> userFollowers = user.getUserFollowers();
+    public List<FollowResponseDto> getAllFollowerByUserId(Long userId) {
+        List<UserFollowing> userFollowers = userFollowingRepository.findByFollowerUserId(userId);
 
         List<User> users = userFollowers.stream().map(UserFollowing::getFollowingUser).toList();
 
         return users.stream().map(FollowResponseDto::from).toList();
-    }
-
-    @Transactional
-    public void unfollowingUser(CustomUserDetails customUserDetails,
-                                FollowRequestDto followRequestDto) {
-
-        User followee = userRepositoy.findById(followRequestDto.followingUserId())
-            .orElseThrow(() -> new CustomException("not found user", HttpStatus.NOT_FOUND.value()));
-
-        User user = customUserDetails.getUser();
-
-        UserFollowing userFollowing = userFollowingRepository.findByFollowerUserIdAndFollowingUserId(followee.getId(), user.getId())
-            .orElseThrow(() -> new CustomException("not found follow", HttpStatus.NOT_FOUND.value()));
-
-        userFollowingRepository.delete(userFollowing);
     }
 
 }
