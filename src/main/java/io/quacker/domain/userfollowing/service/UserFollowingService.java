@@ -52,7 +52,6 @@ public class UserFollowingService {
         userFollowingRepository.delete(userFollowing);
     }
 
-    //api/v1/followings/{userId}
     @Transactional(readOnly = true)
     public List<FollowResponseDto> getAllFollowingUserId(Long userId) {
         List<UserFollowing> userFollowings = userFollowingRepository.findByFollowingUserId(userId);
