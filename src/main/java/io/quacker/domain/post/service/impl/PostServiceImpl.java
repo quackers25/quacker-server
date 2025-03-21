@@ -69,17 +69,15 @@ public class PostServiceImpl implements PostService {
 //                    .limit(4)
 //                    .map(dto -> PostImage.builder()
 //                            .imageUrl(dto.imageUrl())
-//                            .post(post)
+//                            .post(newPost)
 //                            .build())
 //                    .toList();
 //
 //            post.getPostImages().addAll(postImages);
 //        }
 //
-//        Post savedPost = postRepository.save(post);
-//        return PostDto.from(savedPost);
-
-        return PostDto.from(newPost);
+        Post savedPost = postRepository.save(newPost);
+        return PostDto.from(savedPost);
     }
 
     // 리포스트
