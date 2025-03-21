@@ -14,6 +14,7 @@ public record PostDto(
         int repostCount,
         UserDto user,
         PostDto originPost // 리트윗, 공유된 원본 글
+//        List<PostImageDto> images
 ) {
     // Post 엔티티를 PostDto로 변환하는 정적 팩토리 메서드
     public static PostDto from(Post post) {
@@ -24,6 +25,7 @@ public record PostDto(
                 .repostCount(post.getRepostCount())
                 .user(UserDto.from(post.getUser()))
                 .originPost(post.getOriginPost() != null ? PostDto.from(post.getOriginPost()) : null)
+//               .images(PostImageDto.fromEntities(post.getPostImages()))
                 .build();
     }
 
