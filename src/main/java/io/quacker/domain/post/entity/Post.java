@@ -22,12 +22,14 @@ import java.util.List;
 @Builder
 @Getter
 @Entity
+@Table(name = "posts")
 public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "text")
     private String text;
 
     private int likeCount;
@@ -35,7 +37,7 @@ public class Post extends BaseEntity {
     private int repostCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "POST_ID")
+    @JoinColumn(name = "ORIGIN_POST_ID")
     private Post originPost;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -72,5 +74,15 @@ public class Post extends BaseEntity {
     // 게시글 업데이트
     public void updateText(String newText) {
         this.text = newText;
+    }
+
+    public void increaseLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decreaseLikeCount() {
+        if (this.likeCount > 0) {
+            this.likeCount--;
+        }
     }
 }
