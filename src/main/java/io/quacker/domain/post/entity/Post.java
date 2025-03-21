@@ -7,14 +7,7 @@ import io.quacker.domain.postimage.entity.PostImage;
 import io.quacker.domain.postlike.entity.PostLike;
 import io.quacker.domain.postmention.entity.PostMention;
 import io.quacker.domain.user.entity.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -22,23 +15,28 @@ import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name = "Posts")
 public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
+    @Column(nullable = false)
     private String content;
 
     @Builder.Default
     private int likeCount = 0;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Version
+    private Long version;
 
     private int repostCount;
 
@@ -71,6 +69,8 @@ public class Post extends BaseEntity {
     }
 
     public void decrementLikeCount() {
-        this.likeCount--;
+        if (this.likeCount > 0) {
+            this.likeCount--;
+        }
     }
 }

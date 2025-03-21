@@ -1,9 +1,13 @@
 package io.quacker.domain.postlike.controller;
 
 import io.quacker.domain.post.entity.Post;
+import io.quacker.domain.postlike.entity.PostLike;
 import io.quacker.domain.postlike.dto.PostLikeResponseDto;
 import io.quacker.domain.postlike.service.PostLikeService;
+import io.quacker.domain.user.entity.User;
+import io.quacker.domain.user.service.UserService;
 import io.quacker.global.security.CustomUserDetails;
+import io.quacker.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,46 +19,34 @@ import org.springframework.web.bind.annotation.*;
 public class PostLikeController {
 
     private final PostLikeService postLikeService;
+    private final UserService userService;
+    private final PostService postService;
 
     @PostMapping("/{postId}/like")
-    public ResponseEntity<PostLikeResponseDto> toggleLike(
+    public ResponseEntity<PostLikeResponse> toggleLike(
             @PathVariable Long postId,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        var user = customUserDetails.getUser();
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        User user = userService.getUser(userDetails.getUser().getId());
+        Post post = postService.getPost(postId);
         
-        // 임시 Post 객체 생성 (하드코딩)
-        Post post = Post.builder()
-                .id(postId)
-                .likeCount(0)
-                .content("테스트용 임시 게시물")
-                .user(user)  // 게시물 작성자를 현재 사용자로 설정
-                .build();
+        PostLike postLike = postLikeService.toggleLike(post, user);
+        boolean isLiked = postLike != null;
         
-        postLikeService.toggleLike(user, post);
-        
-        return ResponseEntity.ok(new PostLikeResponseDto(
-            postLikeService.hasUserLikedPost(user, post),
-            post.getLikeCount()
-        ));
+        return ResponseEntity.ok(new PostLikeResponse(isLiked, post.getLikeCount()));
     }
 
     @GetMapping("/{postId}/like")
-    public ResponseEntity<PostLikeResponseDto> getLikeStatus(
+    public ResponseEntity<PostLikeResponse> getLikeStatus(
             @PathVariable Long postId,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        var user = customUserDetails.getUser();
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        User user = userService.getUser(userDetails.getUser().getId());
+        Post post = postService.getPost(postId);
         
-        // 임시 Post 객체 생성 (하드코딩)
-        Post post = Post.builder()
-                .id(postId)
-                .likeCount(0)
-                .content("테스트용 임시 게시물")
-                .user(user)  // 게시물 작성자를 현재 사용자로 설정
-                .build();
-        
-        return ResponseEntity.ok(new PostLikeResponseDto(
-            postLikeService.hasUserLikedPost(user, post),
-            post.getLikeCount()
-        ));
+        boolean isLiked = postLikeService.hasUserLikedPost(post, user);
+        return ResponseEntity.ok(new PostLikeResponse(isLiked, post.getLikeCount()));
     }
-} 
+}
+
+record PostLikeResponse(boolean isLiked, int likeCount) {} 

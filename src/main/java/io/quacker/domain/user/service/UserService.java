@@ -255,6 +255,12 @@ public class UserService {
        return userRepository.findByEmail(email)
                .orElseThrow(() -> new CustomException("User not found with email: " + email, 404));
    }
+
+   @Transactional(readOnly = true)
+   public User getUser(Long userId) {
+       return userRepository.findById(userId)
+               .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+   }
 }
 
 
