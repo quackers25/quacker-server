@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.CascadeType;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -72,7 +73,7 @@ public class User extends BaseEntity {
     private List<UserFollowing> userFollowers = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> likes = new ArrayList<>();
 
     public void updateVisibility(boolean isPrivate) {

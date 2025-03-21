@@ -11,9 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"user_id", "post_id"})
-})
+@Table(name = "PostLikes")
 public class PostLike extends BaseEntity {
 
     @Id
@@ -28,20 +26,19 @@ public class PostLike extends BaseEntity {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    private PostLike(User user, Post post) {
-        this.user = user;
+    private PostLike(Post post, User user) {
         this.post = post;
+        this.user = user;
+        user.addLike(this);
         post.incrementLikeCount();
     }
 
-    public static PostLike of(User user, Post post) {
-        PostLike postLike = new PostLike(user, post);
-        user.addLike(postLike);
-        return postLike;
+    public static PostLike of(Post post, User user) {
+        return new PostLike(post, user);
     }
 
     public void unlike() {
-        this.post.decrementLikeCount();
-        this.user.removeLike(this);
+        user.removeLike(this);
+        post.decrementLikeCount();
     }
 }
