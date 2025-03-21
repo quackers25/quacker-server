@@ -33,4 +33,13 @@ public record PostDto(
     public static List<PostDto> of(List<Post> posts) {
         return posts.stream().map(PostDto::from).toList();
     }
+
+    public static PostDto empty() {
+        return PostDto.builder()
+                .text("")
+                .likeCount(0)
+                .repostCount(0)
+//                .images(List.of()) // 이미지 리스트도 비워두기
+                .build();
+    }
 }
