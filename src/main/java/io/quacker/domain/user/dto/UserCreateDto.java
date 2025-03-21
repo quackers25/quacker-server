@@ -30,5 +30,9 @@ public record UserCreateDto (
 //        @Pattern(regexp = "")
         String avatarImageUrl,
 
-        boolean isPrivate
+        boolean isPrivate,
+
+        @NotBlank
+        @Pattern(regexp = "^[\\p{L}0-9]{2,16}$")
+        String nickname
 ) {}
