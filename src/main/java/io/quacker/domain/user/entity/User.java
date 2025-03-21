@@ -118,5 +118,17 @@ public class User extends BaseEntity {
     public void removeLike(PostLike like) {
         this.likes.remove(like);
     }
+
+    public static User from(UserCreateDto userCreateDto) {
+        return User.builder()
+                .email(userCreateDto.email())
+                .password(userCreateDto.password())
+                .name(userCreateDto.name())
+                .bio(userCreateDto.bio())
+                .avatarImageUrl(userCreateDto.avatarImageUrl())
+                .verified(userCreateDto.verified())
+                .isPrivate(userCreateDto.isPrivate())
+                .build();
+    }
 }
 
