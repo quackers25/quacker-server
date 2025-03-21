@@ -55,13 +55,29 @@ public class PostServiceImpl implements PostService {
     // 새 게시글 작성
     @Transactional
     @Override
-    public PostDto addPost(String text) {
+    public PostDto addPost(PostDto postDto) {
         User user = userService.getCurrentUser();
 
         Post newPost = Post.builder()
-                .text(text)
+                .text(postDto.text())
                 .user(user)
                 .build();
+
+            // PostImageDto → PostImage 엔티티 변환
+//        if (postDto.images() != null && !postDto.images().isEmpty()) {
+//            List<PostImage> postImages = postDto.images().stream()
+//                    .limit(4)
+//                    .map(dto -> PostImage.builder()
+//                            .imageUrl(dto.imageUrl())
+//                            .post(post)
+//                            .build())
+//                    .toList();
+//
+//            post.getPostImages().addAll(postImages);
+//        }
+//
+//        Post savedPost = postRepository.save(post);
+//        return PostDto.from(savedPost);
 
         return PostDto.from(newPost);
     }
@@ -69,12 +85,12 @@ public class PostServiceImpl implements PostService {
     // 리포스트
     @Transactional
     @Override
-    public PostDto repost(Long postId) {
+    public PostDto repost(Long postId, PostDto postDto) {
         User user = userService.getCurrentUser();
         Post originPost = findPostById(postId);
 
         Post retweet = postRepository.save(Post.builder()
-                .text("") // 리트윗은 내용이 없을 수도 있음
+                .text(postDto.text() == null ? "" : postDto.text()) // 리트윗은 내용이 없을 수도 있음
                 .user(user)
                 .originPost(originPost)
                 .build()
@@ -90,10 +106,10 @@ public class PostServiceImpl implements PostService {
     // 게시글 수정
     @Transactional
     @Override
-    public PostDto updatePost(Long postId, String newText) {
+    public PostDto updatePost(Long postId, PostDto postDto) {
         Post post = findPostById(postId);
 
-        post.updateText(newText);
+        post.updateText(postDto.text());
 
         return PostDto.from(post);
     }
