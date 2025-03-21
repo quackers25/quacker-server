@@ -4,6 +4,7 @@ import io.quacker.domain.post.vo.SortBy;
 import io.quacker.domain.post.dto.PostDto;
 import io.quacker.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,22 +47,27 @@ public class PostController {
 
     // 게시글 작성
     @PostMapping
-    public ResponseEntity<PostDto> addPost(@RequestParam String text) {
-        return ResponseEntity.ok(postService.addPost(text));
+    public ResponseEntity<PostDto> addPost(@RequestBody PostDto postDto) {
+        PostDto createdPost = postService.addPost(postDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
 
     // 리포스트
     @PostMapping("/{postId}")
-    public ResponseEntity<PostDto> retweetPost(@PathVariable Long postId) {
-        return ResponseEntity.ok(postService.repost(postId));
+    public ResponseEntity<PostDto> repost(
+            @PathVariable Long postId,
+            @RequestBody(required = false) PostDto postDto // 선택 입력
+    ) {
+        PostDto retweetedPost = postService.repost(postId, postDto != null ? postDto : new PostDto(null, null, 0, 0, null, null));
+        return ResponseEntity.status(HttpStatus.CREATED).body(retweetedPost);
     }
 
     // 게시글 수정
     @PatchMapping("/{postId}")
     public ResponseEntity<PostDto> updatePost(
             @PathVariable Long postId,
-            @RequestParam String newText) {
-        return ResponseEntity.ok(postService.updatePost(postId, newText));
+            @RequestBody PostDto postDto) {
+        return ResponseEntity.ok(postService.updatePost(postId, postDto));
     }
 
     // 게시글 삭제
