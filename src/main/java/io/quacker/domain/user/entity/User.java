@@ -5,6 +5,7 @@ import io.quacker.domain.comment.entity.Comment;
 import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.postlike.entity.PostLike;
 import io.quacker.domain.postmention.entity.PostMention;
+import io.quacker.domain.user.dto.UserCreateDto;
 import io.quacker.domain.userfollowing.entitty.UserFollowing;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -74,6 +75,18 @@ public class User extends BaseEntity {
 
     public void removeLike(PostLike like) {
         this.likes.remove(like);
+    }
+
+    public static User from(UserCreateDto userCreateDto) {
+        return User.builder()
+                .email(userCreateDto.email())
+                .password(userCreateDto.password())
+                .name(userCreateDto.name())
+                .bio(userCreateDto.bio())
+                .avatarImageUrl(userCreateDto.avatarImageUrl())
+                .verified(userCreateDto.verified())
+                .isPrivate(userCreateDto.isPrivate())
+                .build();
     }
 }
 
