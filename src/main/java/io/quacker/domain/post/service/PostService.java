@@ -10,8 +10,8 @@ public interface PostService {
     PostDto getPost(Long postId);
     List<PostDto> getPostsByUserId(SortBy sortBy);
     List<PostDto> searchPosts(String keyword, SortBy sortBy);
-    PostDto addPost(String text);
-    PostDto repost(Long postId);
-    PostDto updatePost(Long postId, String newText);
+    PostDto addPost(PostDto postDto);
+    PostDto repost(Long postId, PostDto postDto);
+    PostDto updatePost(Long postId, PostDto postDto);
     boolean deletePost(Long postId);
 }
