@@ -48,18 +48,17 @@ public class PostController {
     // 게시글 작성
     @PostMapping
     public ResponseEntity<PostDto> addPost(@RequestBody PostDto postDto) {
-        PostDto createdPost = postService.addPost(postDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
+        return ResponseEntity.status(HttpStatus.CREATED).body(postService.addPost(postDto));
     }
 
     // 리포스트
     @PostMapping("/{postId}")
     public ResponseEntity<PostDto> repost(
             @PathVariable Long postId,
-            @RequestBody(required = false) PostDto postDto // 선택 입력
-    ) {
-        PostDto retweetedPost = postService.repost(postId, postDto != null ? postDto : new PostDto(null, null, 0, 0, null, null));
-        return ResponseEntity.status(HttpStatus.CREATED).body(retweetedPost);
+            @RequestBody(required = false) PostDto postDto) {
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(postService.repost(postId, postDto != null ? postDto : PostDto.empty()));
     }
 
     // 게시글 수정
