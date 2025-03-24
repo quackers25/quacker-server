@@ -189,17 +189,17 @@ public class UserService {
      * @param dto, UserUpdateDto
      * @return UserDto
      */
-    public UserDto updateUserProfile(Long userId, UserUpdateDto dto) {
-        var user = userRepository.findById(userId)
-                dto.name(),
-                dto.bio(),
-                dto.avatarImageUrl(),
-                dto.isLocked(),
-                dto.isPrivate()
-        );
-
-        return UserDto.from(user);
-    }
+//    public UserDto updateUserProfile(Long userId, UserUpdateDto dto) {
+//        var user = userRepository.findById(userId)
+//                dto.name(),
+//                dto.bio(),
+//                dto.avatarImageUrl(),
+//                dto.isLocked(),
+//                dto.isPrivate()
+//        );
+//
+//        return UserDto.from(user);
+//    }
 
     /**
      * REQ_013	공개여부 토글
