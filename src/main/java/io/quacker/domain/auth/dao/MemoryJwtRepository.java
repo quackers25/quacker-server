@@ -25,6 +25,11 @@ public class MemoryJwtRepository implements JwtRepository {
     }
 
     @Override
+    public List<Object> getAllKeys() {
+        return Arrays.asList(mem.keySet().toArray());
+    }
+
+    @Override
     public String setex(String key, Date exp, String value) {
         var item = mem.put(key, JwtItem.builder()
                 .exp(exp)

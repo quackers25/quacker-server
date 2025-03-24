@@ -5,11 +5,17 @@ import io.quacker.common.util.JwtTokenUtil;
 import io.quacker.common.dao.DefaultCacheRepository;
 import io.quacker.domain.auth.dao.MemoryJwtRepository;
 import io.quacker.domain.auth.dto.JwtItem;
+import io.quacker.domain.user.dto.DeletionItem;
+import io.quacker.domain.user.entity.User;
+import io.quacker.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 /**
  * 리프레시 토큰 블랙리스트 서비스입니다.
@@ -58,6 +64,6 @@ public class JwtBlacklistService {
      */
     @Scheduled(fixedDelay = 10000)
     public void deleteExpiratedJwtItem() {
-        ((MemoryJwtRepository) jwtRepository).deleteExpiratedItem();
+        ((MemoryJwtRepository) jwtRepository).deleteExpiredItem();
     }
 }
