@@ -191,7 +191,9 @@ public class UserService {
      */
     public UserDto updateUserProfile(Long userId, UserUpdateDto dto) {
         var user = userRepository.findById(userId)
-                dto.name(),
+                .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
+        user.updateProfile(
+        dto.name(),
                 dto.bio(),
                 dto.avatarImageUrl(),
                 dto.isLocked(),
@@ -226,37 +228,20 @@ public class UserService {
      * 현재 로그인된 User 영속성 엔티티 반환.
      * @return User
      */
-   public User getCurrentUser() throws CustomException{
+    public User getCurrentUser() throws CustomException{
 
-       var auth = SecurityContextHolder.getContext().getAuthentication();
-       if (auth == null) {
-           throw new CustomException("인증되지 않음", 403);
-       }
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            throw new CustomException("인증되지 않음", 403);
+        }
 
-       if (!(auth.getPrincipal() instanceof CustomUserDetails)) {
-           throw new CustomException("인증되지 않음", 500);
-       }
+        if (!(auth.getPrincipal() instanceof CustomUserDetails)) {
+            throw new CustomException("인증되지 않음", 500);
+        }
 
-       Long userId = ((CustomUserDetails)auth.getPrincipal()).getUserId();
+        Long userId = ((CustomUserDetails)auth.getPrincipal()).getUserId();
 
-       return userRepository.findById(userId)
-               .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
-   }
+        return userRepository.findById(userId)
+                .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
