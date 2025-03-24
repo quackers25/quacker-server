@@ -31,35 +31,35 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
         String authorizationHeader = request.getHeader("Authorization");
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+        if ( authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+
             filterChain.doFilter(request, response);
             return;
         }
 
-        try {
-            // 헤더 파싱
-            String token = authorizationHeader.substring(7);
-            String email = jwtTokenUtil.extractEmail(token);
 
-            // 이메일이 존재하지않고 현재 SecurityContext에 인증 정보가 없는 경우 새로 토큰 발급
-            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(email);
+        // 헤더 파싱
+        String token = authorizationHeader.substring(7);
+        //Long userId = jwtTokenUtil.extractUserId(token);
+        String email = jwtTokenUtil.extractEmail(token);
 
-                // 유효한 토근인가.
-                if (jwtTokenUtil.validateToken(token, userDetails.getUserId())) {
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(userDetails,
-                                    null,
-                                    userDetails.getAuthorities());
+        // 이메일이 존재하지않고 현재 SecurityContext에 인증 정보가 없는 경우 새로 토큰 발급
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(email);
 
-                    // 현재 요청 정보를 인증 토큰에 설정
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    // SecurityContext에 인증 정보 설정
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
+            // 유효한 토근인가.
+            if (jwtTokenUtil.validateToken(token, userDetails.getUserId())) {
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(userDetails,
+                                null, // jwt, 생략
+                                userDetails.getAuthorities());
+
+
+                // 현재 요청 정보를 인증 토큰에 설정
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // SecurityContext에 인증 정보 설정
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
-        } catch (Exception e) {
-            logger.error("JWT Token processing failed: " + e.getMessage());
         }
 
         // done

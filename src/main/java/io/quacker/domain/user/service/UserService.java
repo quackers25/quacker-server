@@ -71,7 +71,8 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException("유저를 찾을 수 없음", 404));
 
-        if (!passwordEncoder.matches(rawPw, user.getPassword())) {
+        String hashedPw = user.getPassword();
+        if (!passwordEncoder.matches(rawPw, hashedPw)) {
             throw new CustomException("비밀번호가 일치하지 않음", 400);
         }
 
@@ -171,7 +172,6 @@ public class UserService {
     public UserDto updateUserProfile(UserUpdateDto dto) {
         var user = getCurrentUser();
         user.updateProfile(
-                dto.nickname(),
                 dto.name(),
                 dto.bio(),
                 dto.avatarImageUrl(),
@@ -191,9 +191,6 @@ public class UserService {
      */
     public UserDto updateUserProfile(Long userId, UserUpdateDto dto) {
         var user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException("유저를 찾을 수 없음", 404));
-        user.updateProfile(
-                dto.nickname(),
                 dto.name(),
                 dto.bio(),
                 dto.avatarImageUrl(),
