@@ -1,13 +1,17 @@
 package io.quacker.domain.postlike.service;
 
 import io.quacker.domain.post.entity.Post;
+import io.quacker.domain.post.dao.PostRepository;
+import io.quacker.domain.postlike.dto.PostLikeResponse;
 import io.quacker.domain.postlike.entity.PostLike;
 import io.quacker.domain.postlike.repository.PostLikeRepository;
 import io.quacker.domain.user.entity.User;
+import io.quacker.domain.user.dao.UserRepository;
+import io.quacker.global.error.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,22 +19,43 @@ import java.util.Optional;
 public class PostLikeService {
 
     private final PostLikeRepository postLikeRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
-    public PostLike toggleLike(Post post, User user) {
-        Optional<PostLike> existingLike = postLikeRepository.findByPostAndUser(post, user);
+    public PostLikeResponse toggleLike(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
         
-        if (existingLike.isPresent()) {
-            PostLike postLike = existingLike.get();
-            postLike.unlike();
-            postLikeRepository.delete(postLike);
-            return null;
-        } else {
-            return postLikeRepository.save(PostLike.of(post, user));
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+
+        boolean isLiked = postLikeRepository.findByPostAndUser(post, user)
+                .map(like -> {
+                    postLikeRepository.delete(like);
+                    post.decreaseLikeCount();
+                    return false;
+                })
+                .orElseGet(() -> {
+                    PostLike newLike = PostLike.builder()
+                            .post(post)
+                            .user(user)
+                            .build();
+                    postLikeRepository.save(newLike);
+                    post.increaseLikeCount();
+                    return true;
+                });
+
+        return new PostLikeResponse(isLiked, post.getLikeCount());
     }
 
-    @Transactional(readOnly = true)
-    public boolean hasUserLikedPost(Post post, User user) {
-        return postLikeRepository.existsByPostAndUser(post, user);
+    public PostLikeResponse getLikeStatus(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+        
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+
+        boolean isLiked = postLikeRepository.findByPostAndUser(post, user).isPresent();
+        return new PostLikeResponse(isLiked, post.getLikeCount());
     }
-}
+} 
