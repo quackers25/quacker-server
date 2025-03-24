@@ -20,7 +20,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import jakarta.persistence.CascadeType;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -73,26 +72,21 @@ public class User extends BaseEntity {
     private List<UserFollowing> userFollowers = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user")
     private List<PostLike> likes = new ArrayList<>();
 
     public void updateVisibility(boolean isPrivate) {
         this.isPrivate = isPrivate;
     }
 
-    public void freeze() { 
-        this.isLocked = true; 
-    }
+    public void freeze() { this.isLocked = false; }
 
-    public void unfreeze() { 
-        this.isLocked = false; 
-    }
+    public void unfreeze() { this.isLocked = true; }
 
     public static User fromCreateDtoWithHashedPassword(UserCreateDto userCreateDto, String hashedPw) {
         return User.builder()
                 .email(userCreateDto.email())
                 .password(hashedPw)
-                .nickname(userCreateDto.nickname())
                 .name(userCreateDto.name())
                 .bio(userCreateDto.bio())
                 .avatarImageUrl(userCreateDto.avatarImageUrl())
@@ -100,8 +94,8 @@ public class User extends BaseEntity {
                 .build();
     }
 
-    public void updateProfile(String nickname, String name, String bio, String avatarImageUrl, boolean isLocked, boolean isPrivate) {
-        this.nickname = nickname;
+
+    public void updateProfile(String name, String bio, String avatarImageUrl, boolean isLocked, boolean isPrivate) {
         this.name = name;
         this.bio = bio;
         this.avatarImageUrl = avatarImageUrl;
@@ -111,26 +105,6 @@ public class User extends BaseEntity {
 
     public void changePassword(String password) {
         this.password = password;
-    }
-
-    public void addLike(PostLike like) {
-        this.likes.add(like);
-    }
-
-    public void removeLike(PostLike like) {
-        this.likes.remove(like);
-    }
-
-    public static User from(UserCreateDto userCreateDto) {
-        return User.builder()
-                .email(userCreateDto.email())
-                .password(userCreateDto.password())
-                .name(userCreateDto.name())
-                .bio(userCreateDto.bio())
-                .avatarImageUrl(userCreateDto.avatarImageUrl())
-                .verified(userCreateDto.verified())
-                .isPrivate(userCreateDto.isPrivate())
-                .build();
     }
 }
 
