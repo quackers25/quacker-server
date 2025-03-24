@@ -90,7 +90,6 @@ public class User extends BaseEntity {
         return User.builder()
                 .email(userCreateDto.email())
                 .password(hashedPw)
-                .nickname(userCreateDto.nickname())
                 .name(userCreateDto.name())
                 .bio(userCreateDto.bio())
                 .avatarImageUrl(userCreateDto.avatarImageUrl())
@@ -98,8 +97,8 @@ public class User extends BaseEntity {
                 .build();
     }
 
-    public void updateProfile(String nickname, String name, String bio, String avatarImageUrl, boolean isLocked, boolean isPrivate) {
-        this.nickname = nickname;
+
+    public void updateProfile(String name, String bio, String avatarImageUrl, boolean isLocked, boolean isPrivate) {
         this.name = name;
         this.bio = bio;
         this.avatarImageUrl = avatarImageUrl;
