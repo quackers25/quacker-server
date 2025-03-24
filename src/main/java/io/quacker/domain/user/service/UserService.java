@@ -46,20 +46,16 @@ public class UserService {
          */
 
         if (!rawPw.equals(rawConfirmPw)) {
-            throw new CustomException("Invalid password", 500);
+            throw new CustomException("비밀번호가 일치하지 않음", 400);
         }
         if (userRepository.existsByEmail(email)) {
-            throw new CustomException("Email exists", 500);
+            throw new CustomException("사용할 수 없는 이메일", 409);
         }
 
         User user = User.fromCreateDtoWithHashedPassword(dto, passwordEncoder.encode(rawPw));
 
-        try {
-            User result = userRepository.save(user);
-            return UserDto.from(result);
-        } catch (Exception e){
-            throw new CustomException("Failed to save user", 500);
-        }
+        User result = userRepository.save(user);
+        return UserDto.from(result);
     }
 
     /**
@@ -75,7 +71,8 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException("유저를 찾을 수 없음", 404));
 
-        if (!passwordEncoder.matches(rawPw, user.getPassword())) {
+        String hashedPw = user.getPassword();
+        if (!passwordEncoder.matches(rawPw, hashedPw)) {
             throw new CustomException("비밀번호가 일치하지 않음", 400);
         }
 
@@ -175,7 +172,6 @@ public class UserService {
     public UserDto updateUserProfile(UserUpdateDto dto) {
         var user = getCurrentUser();
         user.updateProfile(
-                dto.nickname(),
                 dto.name(),
                 dto.bio(),
                 dto.avatarImageUrl(),
@@ -195,10 +191,9 @@ public class UserService {
      */
     public UserDto updateUserProfile(Long userId, UserUpdateDto dto) {
         var user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException("유저를 찾을 수 없음", 404));
+                .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
         user.updateProfile(
-                dto.nickname(),
-                dto.name(),
+        dto.name(),
                 dto.bio(),
                 dto.avatarImageUrl(),
                 dto.isLocked(),
@@ -233,48 +228,20 @@ public class UserService {
      * 현재 로그인된 User 영속성 엔티티 반환.
      * @return User
      */
-   public User getCurrentUser() throws CustomException{
+    public User getCurrentUser() throws CustomException{
 
-       var auth = SecurityContextHolder.getContext().getAuthentication();
-       if (auth == null) {
-           throw new CustomException("인증되지 않음", 403);
-       }
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            throw new CustomException("인증되지 않음", 403);
+        }
 
-       if (!(auth.getPrincipal() instanceof CustomUserDetails)) {
-           throw new CustomException("인증되지 않음", 500);
-       }
+        if (!(auth.getPrincipal() instanceof CustomUserDetails)) {
+            throw new CustomException("인증되지 않음", 500);
+        }
 
-       Long userId = ((CustomUserDetails)auth.getPrincipal()).getUserId();
+        Long userId = ((CustomUserDetails)auth.getPrincipal()).getUserId();
 
-       return userRepository.findById(userId)
-               .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
-   }
-
-   public User findByEmail(String email) {
-       return userRepository.findByEmail(email)
-               .orElseThrow(() -> new CustomException("User not found with email: " + email, 404));
-   }
-
-   @Transactional(readOnly = true)
-   public User getUser(Long userId) {
-       return userRepository.findById(userId)
-               .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
-   }
+        return userRepository.findById(userId)
+                .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
