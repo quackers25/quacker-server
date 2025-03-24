@@ -5,6 +5,7 @@ import io.quacker.domain.post.dao.PostRepository;
 import io.quacker.domain.post.dto.PostDto;
 import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.post.service.PostService;
+import io.quacker.domain.postimage.entity.PostImage;
 import io.quacker.domain.user.entity.User;
 import io.quacker.domain.user.service.UserService;
 import io.quacker.global.exception.CustomException;
@@ -63,21 +64,19 @@ public class PostServiceImpl implements PostService {
                 .user(user)
                 .build();
 
-            // PostImageDto → PostImage 엔티티 변환
-//        if (postDto.images() != null && !postDto.images().isEmpty()) {
-//            List<PostImage> postImages = postDto.images().stream()
-//                    .limit(4)
-//                    .map(dto -> PostImage.builder()
-//                            .imageUrl(dto.imageUrl())
-//                            .post(newPost)
-//                            .build())
-//                    .toList();
-//
-//            post.getPostImages().addAll(postImages);
-//        }
-//
-        Post savedPost = postRepository.save(newPost);
-        return PostDto.from(savedPost);
+        // PostImage.of()로 Post 참조 포함하여 생성
+        if (postDto.images() != null && !postDto.images().isEmpty()) {
+            List<PostImage> postImages = postDto.images().stream()
+                    .map(dto -> PostImage.of(dto.imageUrl(), newPost))
+                    .limit(4)
+                    .toList();
+
+            newPost.addImages(postImages); // 도메인에 위임
+        }
+
+        postRepository.save(newPost);
+
+        return PostDto.from(newPost);
     }
 
     // 리포스트
@@ -87,16 +86,16 @@ public class PostServiceImpl implements PostService {
         User user = userService.getCurrentUser();
         Post originPost = findPostById(postId);
 
-        Post retweet = postRepository.save(Post.builder()
+        Post retweet = Post.builder()
                 .text(postDto.text() == null ? "" : postDto.text()) // 리트윗은 내용이 없을 수도 있음
                 .user(user)
                 .originPost(originPost)
-                .build()
-        );
+                .build();
 
         // 원본 게시글의 repostCount 증가
         originPost.incrementRepostCount();
-        postRepository.save(originPost);
+
+        postRepository.save(retweet);
 
         return PostDto.from(retweet);
     }
