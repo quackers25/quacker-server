@@ -30,11 +30,15 @@ public class PostImage extends BaseEntity {
     @JoinColumn(name = "POST_ID")
     private Post post;
 
-    public PostImage updateImageUrl(String newImageUrl) {
+    public void updateImageUrl(String newImageUrl) {
+        this.imageUrl = newImageUrl;
+    }
+
+    // 정적 팩토리 메서드
+    public static PostImage of(String imageUrl, Post post) {
         return PostImage.builder()
-                .id(this.id)
-                .imageUrl(newImageUrl)
-                .post(this.post)
+                .imageUrl(imageUrl)
+                .post(post)
                 .build();
     }
 
