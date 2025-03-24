@@ -32,9 +32,9 @@ public class Post extends BaseEntity {
     @Column(name = "text")
     private String text;
 
-    private int likeCount;
+    private int likeCount = 0;
 
-    private int repostCount;
+    private int repostCount = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ORIGIN_POST_ID")
@@ -84,5 +84,14 @@ public class Post extends BaseEntity {
         if (this.likeCount > 0) {
             this.likeCount--;
         }
+    }
+
+    // 이미지 추가
+    public void addImages(List<PostImage> images) {
+        if (this.postImages == null) {
+            this.postImages = new ArrayList<>();
+        }
+
+        this.postImages.addAll(images);
     }
 }
