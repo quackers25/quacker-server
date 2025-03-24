@@ -39,7 +39,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
     private String nickname;
 
     private String name;
@@ -78,27 +77,32 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<PostLike> likes = new ArrayList<>();
 
+    public static User fromCreateDtoWithHashedPassword(UserCreateDto userCreateDto,
+                                                       String hashedPw) {
+        return User.builder()
+            .email(userCreateDto.email())
+            .password(hashedPw)
+            .name(userCreateDto.name())
+            .bio(userCreateDto.bio())
+            .avatarImageUrl(userCreateDto.avatarImageUrl())
+            .isPrivate(userCreateDto.isPrivate())
+            .build();
+    }
+
     public void updateVisibility(boolean isPrivate) {
         this.isPrivate = isPrivate;
     }
 
-    public void freeze() { this.isLocked = false; }
-
-    public void unfreeze() { this.isLocked = true; }
-
-    public static User fromCreateDtoWithHashedPassword(UserCreateDto userCreateDto, String hashedPw) {
-        return User.builder()
-                .email(userCreateDto.email())
-                .password(hashedPw)
-                .name(userCreateDto.name())
-                .bio(userCreateDto.bio())
-                .avatarImageUrl(userCreateDto.avatarImageUrl())
-                .isPrivate(userCreateDto.isPrivate())
-                .build();
+    public void freeze() {
+        this.isLocked = false;
     }
 
+    public void unfreeze() {
+        this.isLocked = true;
+    }
 
-    public void updateProfile(String name, String bio, String avatarImageUrl, boolean isLocked, boolean isPrivate) {
+    public void updateProfile(String name, String bio, String avatarImageUrl, boolean isLocked,
+                              boolean isPrivate) {
         this.name = name;
         this.bio = bio;
         this.avatarImageUrl = avatarImageUrl;

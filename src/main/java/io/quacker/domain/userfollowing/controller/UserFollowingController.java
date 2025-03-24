@@ -20,12 +20,10 @@ public class UserFollowingController {
 
     private final UserFollowingService userFollowingService;
 
-    // TODO : following 생성, 삭제에 ResponseBody의 내용을 무었을 담을것인가?
-
     @PostMapping("followings")
     public ResponseEntity<?> addFollowing(@RequestBody FollowRequestDto followRequestDto) {
-        userFollowingService.followingUser(followRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(userFollowingService.followingUser(followRequestDto));
     }
 
     @GetMapping("followings/{userId}")
@@ -42,8 +40,8 @@ public class UserFollowingController {
 
     @DeleteMapping("followings/{userId}")
     public ResponseEntity<?> unFollowing(@PathVariable Long userId) {
-        userFollowingService.unfollowingUser(userId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(userFollowingService.unfollowingUser(userId));
     }
 
 }

@@ -24,7 +24,7 @@ public class UserFollowingService {
     private final UserService userService;
 
     @Transactional
-    public void followingUser(FollowRequestDto followRequestDto) {
+    public FollowResponseDto followingUser(FollowRequestDto followRequestDto) {
 
         User user = userService.getCurrentUser();
 
@@ -36,10 +36,12 @@ public class UserFollowingService {
         userFollowing.addFollowing(user, followee);
 
         userFollowingRepository.save(userFollowing);
+
+        return FollowResponseDto.from(followee);
     }
 
     @Transactional
-    public void unfollowingUser(Long followingUserId) {
+    public FollowResponseDto unfollowingUser(Long followingUserId) {
 
         User followee = userRepository.findById(followingUserId)
             .orElseThrow(() -> new CustomException("not found user", HttpStatus.NOT_FOUND.value()));
@@ -50,6 +52,8 @@ public class UserFollowingService {
             .orElseThrow(() -> new CustomException("not found follow", HttpStatus.NOT_FOUND.value()));
 
         userFollowingRepository.delete(userFollowing);
+
+        return FollowResponseDto.from(followee);
     }
 
     @Transactional(readOnly = true)
