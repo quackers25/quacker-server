@@ -32,13 +32,15 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader("Authorization");
 
         if ( authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+
             filterChain.doFilter(request, response);
             return;
         }
 
+
         // 헤더 파싱
         String token = authorizationHeader.substring(7);
-//        Long userId = jwtTokenUtil.extractUserId(token);
+        //Long userId = jwtTokenUtil.extractUserId(token);
         String email = jwtTokenUtil.extractEmail(token);
 
         // 이메일이 존재하지않고 현재 SecurityContext에 인증 정보가 없는 경우 새로 토큰 발급
