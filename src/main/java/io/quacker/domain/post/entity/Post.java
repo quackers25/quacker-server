@@ -8,46 +8,50 @@ import io.quacker.domain.postlike.entity.PostLike;
 import io.quacker.domain.postmention.entity.PostMention;
 import io.quacker.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
-@Entity
-@Table(name = "posts")
+@Table(name = "Posts")
 public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "text")
-    private String text;
+    @Column(nullable = false)
+    private String content;
 
-    private int likeCount;
+    @Builder.Default
+    private int likeCount = 0;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Version
+    private Long version;
 
     private int repostCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ORIGIN_POST_ID")
+    @JoinColumn(name = "POST_ID")
     private Post originPost;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    private User user;
+    @OneToMany(mappedBy = "originPost")
+    private List<Post> replyPosts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @Builder.Default
+    @OneToMany(mappedBy = "post", cascade = jakarta.persistence.CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post")
     private List<PostImage> postImages = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
@@ -56,33 +60,22 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post")
     private List<HashtagPost> hashtagPosts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @Builder.Default
+    @OneToMany(mappedBy = "post", cascade = jakarta.persistence.CascadeType.ALL)
     private List<PostLike> likes = new ArrayList<>();
 
-    /** ✅ 리트윗 수 증가 */
-    public void incrementRepostCount() {
-        this.repostCount++;
+    public void incrementLikeCount() {
+        this.likeCount++;
     }
 
-    /** ✅ 리트윗 수 감소 */
-    public void decrementRepostCount() {
-        if (this.repostCount > 0) {
-            this.repostCount--;
+    public void decrementLikeCount() {
+        if (this.likeCount > 0) {
+            this.likeCount--;
         }
     }
 
     // 게시글 업데이트
     public void updateText(String newText) {
         this.text = newText;
-    }
-
-    public void increaseLikeCount() {
-        this.likeCount++;
-    }
-
-    public void decreaseLikeCount() {
-        if (this.likeCount > 0) {
-            this.likeCount--;
-        }
     }
 }

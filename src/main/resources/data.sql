@@ -1,10 +1,10 @@
--- 테스트는 회원가입 API부터 시작하겠습니다. 
+-- 테스트용 사용자 데이터
+INSERT INTO users (email, password, name, created_at, updated_at, is_locked, is_verified, is_private)
+VALUES ('test@example.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBpwTTyU7VxW6', '테스트유저', 
+        CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), false, false, false);
 
--- 테스트 데이터 추가
-INSERT INTO users (id, email, password, nickname, name, bio, avatar_image_url, is_locked, is_private, is_verified, created_at, updated_at) 
-VALUES (100, 'test@example.com', '$2a$10$mzF0/C3s6xnzWGz1l5GYEOvPQEm.YD.pVHvnsCvhgHsqR1VPBaXzO', '테스트유저', '테스트', '테스트 계정입니다.', null, false, false, false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
-INSERT INTO posts (id, text, user_id, like_count, created_at, updated_at) VALUES
-(100, '첫 번째 테스트 포스트입니다.', 100, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(101, '두 번째 테스트 포스트입니다.', 100, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(102, '세 번째 테스트 포스트입니다.', 100, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP); 
+-- 테스트용 게시물 데이터
+INSERT INTO posts (content, like_count, repost_count, version, created_at, updated_at)
+VALUES ('테스트 게시물 1', 0, 0, 0, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()),
+       ('테스트 게시물 2', 0, 0, 0, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()),
+       ('테스트 게시물 3', 0, 0, 0, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()); 
