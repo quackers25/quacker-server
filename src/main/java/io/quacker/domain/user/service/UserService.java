@@ -65,7 +65,6 @@ public class UserService {
      * @return String, JWT토큰
      */
     public String login(UserLoginDto dto) {
-
         String email = dto.email();
         String rawPw = dto.password();
 
@@ -73,7 +72,6 @@ public class UserService {
                 .orElseThrow(() -> new CustomException("유저를 찾을 수 없음", 404));
 
         String hashedPw = user.getPassword();
-
         if (!passwordEncoder.matches(rawPw, hashedPw)) {
             throw new CustomException("비밀번호가 일치하지 않음", 400);
         }
@@ -193,8 +191,6 @@ public class UserService {
      */
     public UserDto updateUserProfile(Long userId, UserUpdateDto dto) {
         var user = userRepository.findById(userId)
-                .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
-        user.updateProfile(
                 dto.name(),
                 dto.bio(),
                 dto.avatarImageUrl(),

@@ -39,6 +39,9 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private String nickname;
+
     private String name;
 
     private String bio;
@@ -93,6 +96,7 @@ public class User extends BaseEntity {
                 .isPrivate(userCreateDto.isPrivate())
                 .build();
     }
+
 
     public void updateProfile(String name, String bio, String avatarImageUrl, boolean isLocked, boolean isPrivate) {
         this.name = name;
