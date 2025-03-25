@@ -28,8 +28,16 @@ public class UserFollowingService {
 
         User user = userService.getCurrentUser();
 
+        if (user.getId().equals(followRequestDto.followingUserId())) {
+            throw new CustomException("자기 자신을 팔로잉 할 수 없습니다.", HttpStatus.BAD_REQUEST.value());
+        }
+
         User followee = userRepository.findById(followRequestDto.followingUserId())
             .orElseThrow(() -> new CustomException("not found user", HttpStatus.NOT_FOUND.value()));
+
+        if (userFollowingRepository.findByFollowerUserIdAndFollowingUserId(followee.getId(), user.getId()).isPresent()) {
+            throw new CustomException("already following user", HttpStatus.BAD_REQUEST.value());
+        }
 
         UserFollowing userFollowing = new UserFollowing();
 
