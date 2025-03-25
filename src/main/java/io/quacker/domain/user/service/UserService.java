@@ -203,9 +203,16 @@ public class UserService {
     /**
      * REQ_005	<h4>비밀번호 재설정</h4>
      * 비밀번호, 확인 비밀번호를 확인 후 저장합니다.
+     *
+     * 비밀번호 변경 세션을 만들어서 인증을 받아야함
+     *
+     *
      * @param dto 비밀번호, 확인 비밀번호를 담은 dto
      */
     public void resetPassword(UserCreateDto dto) {
+
+        //Todo : 인증 세션, 또는 인증코드리스트 유지 존재하는 요청인지 확인해한다.
+
         if (!dto.password().equals(dto.confirmPassword()))
             throw new CustomException("비밀번호가 일치하지 않음", 400);
         var user = userRepository.findByEmail(dto.email())
