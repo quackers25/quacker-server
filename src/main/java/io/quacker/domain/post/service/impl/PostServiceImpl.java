@@ -1,14 +1,17 @@
 package io.quacker.domain.post.service.impl;
 
+import io.quacker.domain.post.dto.PostCreateRequestDto;
 import io.quacker.domain.post.vo.SortBy;
 import io.quacker.domain.post.dao.PostRepository;
 import io.quacker.domain.post.dto.PostDto;
 import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.post.service.PostService;
 import io.quacker.domain.postimage.entity.PostImage;
+import io.quacker.domain.postimage.service.PostImageService;
 import io.quacker.domain.user.entity.User;
 import io.quacker.domain.user.service.UserService;
 import io.quacker.global.exception.CustomException;
+import io.quacker.global.service.FileUploadService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,8 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final UserService userService;
+    private final PostImageService postImageService;
+    private final FileUploadService fileUploadService;
 
     // 모든 게시물 조회
     @Transactional
@@ -56,25 +61,23 @@ public class PostServiceImpl implements PostService {
     // 새 게시글 작성
     @Transactional
     @Override
-    public PostDto addPost(PostDto postDto) {
+    public PostDto addPost(PostCreateRequestDto request) {
         User user = userService.getCurrentUser();
 
         Post newPost = Post.builder()
-                .text(postDto.text())
+                .text(request.text())
                 .user(user)
                 .build();
 
-        // PostImage.of()로 Post 참조 포함하여 생성
-        if (postDto.images() != null && !postDto.images().isEmpty()) {
-            List<PostImage> postImages = postDto.images().stream()
-                    .map(dto -> PostImage.of(dto.imageUrl(), newPost))
-                    .limit(4)
+        // 이미지가 있는 경우 처리
+        if (request.images() != null && !request.images().isEmpty()) {
+            List<String> imageUrls = request.images().stream()
+                    .limit(4) // 최대 4개 제한
+                    .map(fileUploadService::uploadImage) // S3에 업로드
                     .toList();
 
-            newPost.addImages(postImages); // 도메인에 위임
+            postImageService.saveImagesByUrls(imageUrls, newPost);
         }
-
-        postRepository.save(newPost);
 
         return PostDto.from(newPost);
     }
