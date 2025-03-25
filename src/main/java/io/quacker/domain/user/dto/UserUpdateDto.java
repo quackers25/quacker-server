@@ -11,6 +11,8 @@ import java.util.List;
 @Builder
 public record UserUpdateDto(
 
+        String nickname,
+
         String email,
 
         String name,
