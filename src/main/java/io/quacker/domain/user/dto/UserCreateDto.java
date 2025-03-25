@@ -30,6 +30,8 @@ public record UserCreateDto (
         //@Pattern(regexp = "")
         String avatarImageUrl,
 
+        String hint,
+
         boolean isPrivate
 
 ) {}

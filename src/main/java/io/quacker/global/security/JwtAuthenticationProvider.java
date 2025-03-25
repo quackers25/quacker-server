@@ -1,7 +1,10 @@
 package io.quacker.global.security;
 
+import io.quacker.common.util.JwtTokenUtil;
+import io.quacker.domain.user.dto.CustomUserDetails;
 import io.quacker.domain.user.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,12 +14,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
+public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private final PasswordEncoder passwordEncoder;
     private final CustomUserDetailsService customUserDetailsService;
+    private final JwtTokenUtil jwtTokenUtil;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -27,10 +32,7 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("Invalid credentials");
         }
 
-        return new UsernamePasswordAuthenticationToken(
-                userDetails,
-                rawPw,
-                userDetails.getAuthorities());
+        return new JwtAuthenticationToken(userDetails.getAuthorities(), userDetails);
     }
 
     @Override
