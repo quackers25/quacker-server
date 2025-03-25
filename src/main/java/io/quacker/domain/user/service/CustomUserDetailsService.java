@@ -1,9 +1,9 @@
 package io.quacker.domain.user.service;
 
 import io.quacker.domain.user.dao.UserRepository;
+import io.quacker.domain.user.dto.CustomUserDetails;
 import io.quacker.domain.user.entity.User;
 import io.quacker.global.exception.CustomException;
-import io.quacker.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,8 +19,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException("User not found", 404));
+                .orElseThrow(()-> new CustomException("UsernameNotFoundException", 404));
 
-        return new CustomUserDetails(user);
+        return new CustomUserDetails(
+                user.getId(),
+                user.getEmail(),
+                user.getPassword());
     }
 }

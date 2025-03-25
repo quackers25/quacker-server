@@ -1,39 +1,76 @@
 package io.quacker.common.util;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 public class JwtTokenUtil {
 
-    private final Long expiration;
+    private final Long accessTokenExpiration;
+    private final Long refreshTokenExpiration;
     private final Key key;
 
     public JwtTokenUtil(
             @Value("${jwt.secret}") String secretKey,
-            @Value("${jwt.expiration}") long expiration
+            @Value("${jwt.expiration.access}") long accessTokenExpiration,
+            @Value("${jwt.expiration.refresh}") long refreshTokenExpiration
     ) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
-        this.expiration = expiration;
+        this.accessTokenExpiration = accessTokenExpiration;
+        this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
     /**
-     * JWT 토큰 생성 (사용자 ID, 이메일 포함)
+     * Access JWT 토큰 생성 (사용자 ID, 이메일 포함)
+     * @param userId, 고유식별자
+     * @param email, 참고
+     * @param name, 참고
+     * @return String, 접근토큰
      */
-    public String generateToken(Long userId, String email, String name) {
+    public String generateAccessToken(Long userId, String email, String name) {
+        String jwtId = UUID.randomUUID().toString();
         return Jwts.builder()
                 .setClaims(Map.of("email", email, "name", name)) // email 저장
                 .setSubject(userId.toString()) // 사용자 id 저장,
+                .setId(jwtId)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+    public String generateAccess2Token(Long userId, String email, String name) {
+        String jwtId = UUID.randomUUID().toString();
+        return Jwts.builder()
+                .setClaims(Map.of("email", email, "name", name)) // email 저장
+                .setSubject(userId.toString()) // 사용자 id 저장,
+                .setId(jwtId)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 3*1000))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    /**
+     * Access JWT 토큰 생성 (사용자 ID, 이메일 포함)
+     * @param userId, 고유식별자 sub
+     * @return String, 접근토큰
+     */
+    public String generateRefreshToken(Long userId) {
+        String jwtId = UUID.randomUUID().toString();
+        return Jwts.builder()
+                .setSubject(userId.toString()) // 사용자 id 저장,
+                .setId(jwtId)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -65,22 +102,48 @@ public class JwtTokenUtil {
     }
 
     /**
-     * 토큰이 유효한지, 만료되지 않았는지 검증
+     * JWT 토큰에서 jwi 추출
      */
-    public boolean validateToken(String token, Long userId) {
+    public String extractId(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getId();
+    }
+
+    public Date extractExpiration(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+    }
+
+    /**
+     * 접근 토큰이 유효한지, 만료되지 않았는지 검증
+     */
+    public boolean validateAccessToken(String token, Long userId) {
         return extractUserId(token).equals(userId) && !isTokenExpired(token);
     }
 
     /**
      * 토큰 만료 확인
      */
-    private boolean isTokenExpired(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration() // exp
-                .before(new Date());
+    public boolean isTokenExpired(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration() // exp
+                    .before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true;
+        }
     }
+
 }
