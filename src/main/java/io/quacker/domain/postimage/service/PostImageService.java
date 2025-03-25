@@ -1,5 +1,6 @@
 package io.quacker.domain.postimage.service;
 
+import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.postimage.dto.PostImageDto;
 import java.util.List;
 
@@ -8,4 +9,5 @@ public interface PostImageService {
     PostImageDto addImageToPost(Long postId, String imageUrl); // 게시글에 이미지 추가
     PostImageDto updateImage(Long imageId, String newImageUrl); // 게시글에 이미지 수정
     void deleteImage(Long imageId); // 이미지 삭제
+    void saveImagesByUrls(List<String> imageUrls, Post post);
 }
