@@ -1,10 +1,13 @@
 package io.quacker.domain.post.controller;
 
+import io.quacker.domain.post.dto.PostCreateRequestDto;
 import io.quacker.domain.post.vo.SortBy;
 import io.quacker.domain.post.dto.PostDto;
 import io.quacker.domain.post.service.PostService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,9 +49,10 @@ public class PostController {
     }
 
     // 게시글 작성
-    @PostMapping
-    public ResponseEntity<PostDto> addPost(@RequestBody PostDto postDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(postService.addPost(postDto));
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "게시글 작성 (이미지 포함)", description = "게시글 텍스트와 이미지 파일(최대 4개)을 업로드합니다.")
+    public ResponseEntity<PostDto> createPost(@ModelAttribute PostCreateRequestDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(postService.addPost(request));
     }
 
     // 리포스트
