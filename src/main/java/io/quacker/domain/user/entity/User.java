@@ -100,6 +100,7 @@ public class User extends BaseEntity {
                 .build();
     }
 
+
     public void updateProfile(String name, String bio, String avatarImageUrl, boolean isLocked, boolean isPrivate) {
         this.name = name;
         this.bio = bio;

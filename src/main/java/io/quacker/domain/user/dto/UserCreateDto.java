@@ -27,10 +27,11 @@ public record UserCreateDto (
 
         String bio,
 
-//        @Pattern(regexp = "")
+        //@Pattern(regexp = "")
         String avatarImageUrl,
 
         String hint,
 
         boolean isPrivate
+
 ) {}
