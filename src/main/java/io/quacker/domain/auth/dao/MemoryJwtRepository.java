@@ -3,12 +3,13 @@ package io.quacker.domain.auth.dao;
 import io.quacker.common.dao.JwtRepository;
 import io.quacker.domain.auth.dto.JwtItem;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.*;
 
 @Slf4j
-@Repository
+@EnableScheduling
 public class MemoryJwtRepository implements JwtRepository {
 
     //TODO 재발급 limit을 위한 카운트?
@@ -44,9 +45,9 @@ public class MemoryJwtRepository implements JwtRepository {
         return mem.remove(key).getTokenId().toString();
     }
 
+    @Override
+    @Scheduled(fixedDelay = 10000)
     public void deleteExpiredItem() {
-//        log.info("Current cnt : " + mem.size());
-//        mem.entrySet().removeIf(entry->entry.getValue().isBanned());
         Date now = new Date();
         mem.entrySet().removeIf(entry-> {
             log.info("["+ entry.getKey() + "]" + "   만료시간: "+  entry.getValue().getExp().toString());

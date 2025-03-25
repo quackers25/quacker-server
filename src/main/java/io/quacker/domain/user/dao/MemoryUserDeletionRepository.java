@@ -2,9 +2,14 @@ package io.quacker.domain.user.dao;
 
 import io.quacker.common.dao.UserDeletionRepository;
 import io.quacker.domain.user.dto.DeletionItem;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.*;
 
+@Slf4j
+@EnableScheduling
 public class MemoryUserDeletionRepository implements UserDeletionRepository {
 
     private final Map<String, DeletionItem> mem = new HashMap<>();
@@ -36,4 +41,13 @@ public class MemoryUserDeletionRepository implements UserDeletionRepository {
         return mem.remove(key).getUserId().toString();
     }
 
+    @Override
+    @Scheduled(fixedDelay = 10000)
+    public void deleteExpiredItem() {
+        Date now = new Date();
+        mem.entrySet().removeIf(entry-> {
+            log.info("["+ entry.getKey() + "]" + "   만료시간: "+  entry.getValue().getExp().toString());
+            return entry.getValue().getExp().before(now);
+        });
+    }
 }
