@@ -14,12 +14,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -44,6 +45,11 @@ public class User extends BaseEntity {
     private String bio;
 
     private String avatarImageUrl;
+
+    private String hint;
+
+    @Setter
+    private Date deletedAt;
 
     private boolean isVerified;
 
@@ -106,5 +112,6 @@ public class User extends BaseEntity {
     public void changePassword(String password) {
         this.password = password;
     }
+
 }
 
