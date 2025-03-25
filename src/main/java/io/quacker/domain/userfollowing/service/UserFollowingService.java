@@ -24,22 +24,32 @@ public class UserFollowingService {
     private final UserService userService;
 
     @Transactional
-    public void followingUser(FollowRequestDto followRequestDto) {
+    public FollowResponseDto followingUser(FollowRequestDto followRequestDto) {
 
         User user = userService.getCurrentUser();
 
+        if (user.getId().equals(followRequestDto.followingUserId())) {
+            throw new CustomException("자기 자신을 팔로잉 할 수 없습니다.", HttpStatus.BAD_REQUEST.value());
+        }
+
         User followee = userRepository.findById(followRequestDto.followingUserId())
             .orElseThrow(() -> new CustomException("not found user", HttpStatus.NOT_FOUND.value()));
+
+        if (userFollowingRepository.findByFollowerUserIdAndFollowingUserId(followee.getId(), user.getId()).isPresent()) {
+            throw new CustomException("already following user", HttpStatus.BAD_REQUEST.value());
+        }
 
         UserFollowing userFollowing = new UserFollowing();
 
         userFollowing.addFollowing(user, followee);
 
         userFollowingRepository.save(userFollowing);
+
+        return FollowResponseDto.from(followee);
     }
 
     @Transactional
-    public void unfollowingUser(Long followingUserId) {
+    public FollowResponseDto unfollowingUser(Long followingUserId) {
 
         User followee = userRepository.findById(followingUserId)
             .orElseThrow(() -> new CustomException("not found user", HttpStatus.NOT_FOUND.value()));
@@ -50,6 +60,8 @@ public class UserFollowingService {
             .orElseThrow(() -> new CustomException("not found follow", HttpStatus.NOT_FOUND.value()));
 
         userFollowingRepository.delete(userFollowing);
+
+        return FollowResponseDto.from(followee);
     }
 
     @Transactional(readOnly = true)
