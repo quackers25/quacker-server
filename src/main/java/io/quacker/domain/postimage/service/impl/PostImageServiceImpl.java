@@ -72,9 +72,21 @@ public class PostImageServiceImpl implements PostImageService {
         postImageRepository.delete(postImage);
     }
 
+    @Override
+    @Transactional
+    public void saveImagesByUrls(List<String> imageUrls, Post post) {
+        List<PostImage> postImages = imageUrls.stream()
+                .map(url -> PostImage.of(url, post)) // PostImage 생성
+                .toList();
+
+        post.addImages(postImages); // 양방향 관계 설정
+        postImageRepository.saveAll(postImages);
+    }
+
     // 게시글 ID로 게시글 찾기
     private Post findPostById(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException("Post not found", 404));
     }
+
 }
