@@ -20,25 +20,25 @@ public class UserFollowingController {
 
     private final UserFollowingService userFollowingService;
 
-    @PostMapping("followings")
+    @PostMapping("users/followings")
     public ResponseEntity<?> addFollowing(@RequestBody FollowRequestDto followRequestDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(userFollowingService.followingUser(followRequestDto));
     }
 
-    @GetMapping("followings/{userId}")
+    @GetMapping("users/{userId}/followings")
     public ResponseEntity<?> getAllFollowingByUserId(@PathVariable Long userId) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(userFollowingService.getAllFollowingUserId(userId));
     }
 
-    @GetMapping("followers/{userId}")
+    @GetMapping("users/{userId}/followers")
     public ResponseEntity<?> getAllFollowerByUserId(@PathVariable Long userId) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(userFollowingService.getAllFollowerByUserId(userId));
     }
 
-    @DeleteMapping("followings/{userId}")
+    @DeleteMapping("users/followings/{userId}")
     public ResponseEntity<?> unFollowing(@PathVariable Long userId) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(userFollowingService.unfollowingUser(userId));
