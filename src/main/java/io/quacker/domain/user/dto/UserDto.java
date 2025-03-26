@@ -8,6 +8,7 @@ import java.util.List;
 
 @Builder
 public record UserDto(
+        Long id,
 
         String email,
 
@@ -27,6 +28,7 @@ public record UserDto(
 ){
     public static UserDto from(User user) {
         return UserDto.builder()
+                .id(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
                 .bio(user.getBio())

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
 public class PostController {
 
@@ -33,8 +33,9 @@ public class PostController {
     // 특정 User ID 게시물 조회
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<PostDto>> getPostsByUser(
+            @PathVariable Long userId,
             @RequestParam(required = false, defaultValue = "newest") SortBy sortBy) {
-        return ResponseEntity.ok(postService.getPostsByUserId(sortBy));
+        return ResponseEntity.ok(postService.getPostsByUserId(userId, sortBy));
     }
 
     // 게시글 검색
