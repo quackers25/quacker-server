@@ -51,13 +51,12 @@ public class UserAuthController {
                 .maxAge(14 * 24 * 60 * 60)
 //                .sameSite("Strict")
                 .build();
-
-
+        
         // ResponseEntity에 헤더와 응답 본문 설정
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                .build();
+                .body(userService.getUserById(tokens.userId()));
     }
 
     /**
