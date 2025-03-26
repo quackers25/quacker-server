@@ -5,22 +5,29 @@ import io.quacker.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
-public class EmailServiceStub implements EmailCodeService {
+public class EmailCodeServiceStub implements EmailCodeService {
 
     private final EmailCodeRepository emailCodeRepository;
+    private final Long CODE_EXPIRATION_TIME;
 
     @Override
-    public Date sendCode (String to) {
+    public Date sendCode (String email) {
         UUID uuid = UUID.randomUUID();
-        log.info(uuid.toString());
-        return new Date();
+        log.info(email + " CODE : "+ uuid.toString());
+
+        Date now = new Date();
+        Date exp = new Date(System.currentTimeMillis() + CODE_EXPIRATION_TIME);
+
+        //Redis에 추가
+        emailCodeRepository.setex(email, exp, uuid.toString());
+
+        return now;
     }
 
     @Override
