@@ -73,7 +73,7 @@ public interface UserFollowApi {
                         "name": "이름2",
                         "bio": "bio2",
                         "profileImageUrl": "https://example.com/bca.jpg"
-                    },
+                    }
                 ]
                 """),})),})
     @GetMapping
@@ -94,7 +94,7 @@ public interface UserFollowApi {
                         "name": "이름4",
                         "bio": "bio2",
                         "profileImageUrl": "https://example.com/bca.jpg"
-                    },
+                    }
                 ]
                 """),})),})
     @GetMapping
