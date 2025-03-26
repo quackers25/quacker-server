@@ -41,19 +41,22 @@ public class UserController {
                 .body(Map.of("result", true));
     }
 
-    // 프로필
-    @GetMapping("/")
-    public ResponseEntity<?> getProfile() {
+    // 프로필 조회
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getProfile(@PathVariable("userId") Long userId) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.getUserProfile());
+                .body(userService.getUserById(userId));
     }
 
     // 프로필 수정
-    @PutMapping("/edit")
-    public ResponseEntity<?> editProfile(@RequestBody UserUpdateDto userUpdateDto) {
+    @PutMapping("/{userId}/edit")
+    public ResponseEntity<?> editProfile(
+            @PathVariable("userId") Long userId,
+            @RequestBody UserUpdateDto userUpdateDto
+    ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.updateUserProfile(userUpdateDto));
+                .body(userService.updateMyProfile(userId, userUpdateDto));
     }
 }
