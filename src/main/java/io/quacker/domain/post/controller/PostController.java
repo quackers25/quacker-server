@@ -1,6 +1,7 @@
 package io.quacker.domain.post.controller;
 
 import io.quacker.domain.post.dto.PostCreateRequestDto;
+import io.quacker.domain.post.dto.PostUpdateRequestDto;
 import io.quacker.domain.post.vo.SortBy;
 import io.quacker.domain.post.dto.PostDto;
 import io.quacker.domain.post.service.PostService;
@@ -66,12 +67,15 @@ public class PostController {
     }
 
     // 게시글 수정
-    @PatchMapping("/{postId}")
+    @PatchMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "게시글 수정 (텍스트 수정, 이미지 추가 및 삭제)")
     public ResponseEntity<PostDto> updatePost(
             @PathVariable Long postId,
-            @RequestBody PostDto postDto) {
-        return ResponseEntity.ok(postService.updatePost(postId, postDto));
+            @ModelAttribute PostUpdateRequestDto request
+    ) {
+        return ResponseEntity.ok(postService.updatePost(postId, request));
     }
+
 
     // 게시글 삭제
     @DeleteMapping("/{postId}")
