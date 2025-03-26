@@ -2,14 +2,12 @@ package io.quacker.domain.user.dao;
 
 import io.quacker.common.dao.UserDeletionRepository;
 import io.quacker.domain.user.dto.DeletionItem;
+import io.quacker.domain.user.entity.User;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.*;
 
 @Slf4j
-@EnableScheduling
 public class MemoryUserDeletionRepository implements UserDeletionRepository {
 
     private final Map<String, DeletionItem> mem = new HashMap<>();
@@ -29,25 +27,31 @@ public class MemoryUserDeletionRepository implements UserDeletionRepository {
 
     @Override
     public String setex(String key, Date exp, String value) {
-        var item = mem.put(key, DeletionItem.builder()
+        var item = DeletionItem.builder()
                 .userId(key)
                 .exp(exp)
-                .build());
+                .build();
+        mem.put(key, item);
         return item.getUserId().toString();
     }
 
     @Override
     public String delete(String key) {
-        return mem.remove(key).getUserId().toString();
+        var item = mem.remove(key);
+        if (item == null)
+            return null;
+        return item.getUserId().toString();
     }
 
     @Override
-    @Scheduled(fixedDelay = 10000)
-    public void deleteExpiredItem() {
-        Date now = new Date();
-        mem.entrySet().removeIf(entry-> {
-            log.info("["+ entry.getKey() + "]" + "   만료시간: "+  entry.getValue().getExp().toString());
-            return entry.getValue().getExp().before(now);
-        });
+    public List<String> getAllExpiredKeys(Date now) {
+        List<String> result = new ArrayList<>();
+        for (String key : mem.keySet()) {
+            if (mem.get(key).getExp().before(now)){
+                result.add(key);
+            }
+        }
+        return result;
     }
+
 }
