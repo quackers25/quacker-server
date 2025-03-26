@@ -7,6 +7,7 @@ import io.quacker.domain.postimage.dto.PostImageDto;
 import io.quacker.domain.postimage.entity.PostImage;
 import io.quacker.domain.postimage.service.PostImageService;
 import io.quacker.global.exception.CustomException;
+import io.quacker.global.service.FileUploadService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class PostImageServiceImpl implements PostImageService {
 
     private final PostImageRepository postImageRepository;
     private final PostRepository postRepository;
+    private final FileUploadService fileUploadService;
 
     // 특정 게시글의 이미지 조회
     @Override
@@ -27,27 +29,16 @@ public class PostImageServiceImpl implements PostImageService {
         return PostImageDto.fromEntities(postImageRepository.findByPost(post));
     }
 
-
     // 게시글에 이미지 추가
-    @Transactional
     @Override
-    public PostImageDto addImageToPost(Long postId, String imageUrl) {
-        Post post = findPostById(postId);
+    @Transactional
+    public void saveImagesByUrls(List<String> imageUrls, Post post) {
+        List<PostImage> postImages = imageUrls.stream()
+                .map(url -> PostImage.of(url, post)) // PostImage 생성
+                .toList();
 
-        long imageCount = postImageRepository.countByPost(post);
-
-        if (imageCount >= 4) {
-            throw new CustomException("이미지는 최대 4개까지만 등록할 수 있습니다.", 400);
-        }
-
-        PostImage postImage = PostImage.builder()
-                .imageUrl(imageUrl)
-                .post(post)
-                .build();
-
-        PostImage savedImage = postImageRepository.save(postImage);
-
-        return PostImageDto.fromEntity(savedImage);
+        post.addImages(postImages); // 양방향 관계 설정
+        postImageRepository.saveAll(postImages);
     }
 
     // 게시글에 이미지 수정
@@ -69,18 +60,12 @@ public class PostImageServiceImpl implements PostImageService {
     public void deleteImage(Long imageId) {
         PostImage postImage = postImageRepository.findById(imageId)
                 .orElseThrow(() -> new CustomException("Image not found", 404));
+
+        // S3에서 삭제
+        fileUploadService.deleteFromS3(postImage.getImageUrl());
+
+        // DB에서 삭제
         postImageRepository.delete(postImage);
-    }
-
-    @Override
-    @Transactional
-    public void saveImagesByUrls(List<String> imageUrls, Post post) {
-        List<PostImage> postImages = imageUrls.stream()
-                .map(url -> PostImage.of(url, post)) // PostImage 생성
-                .toList();
-
-        post.addImages(postImages); // 양방향 관계 설정
-        postImageRepository.saveAll(postImages);
     }
 
     // 게시글 ID로 게시글 찾기
