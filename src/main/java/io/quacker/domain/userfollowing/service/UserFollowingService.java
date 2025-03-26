@@ -36,7 +36,7 @@ public class UserFollowingService {
             .orElseThrow(() -> new CustomException("not found user", HttpStatus.NOT_FOUND.value()));
 
         if (userFollowingRepository.findByFollowerUserIdAndFollowingUserId(followee.getId(), user.getId()).isPresent()) {
-            throw new CustomException("already following user", HttpStatus.BAD_REQUEST.value());
+            throw new CustomException("이미 팔로잉 한 유저 입니다.", HttpStatus.CONFLICT.value());
         }
 
         UserFollowing userFollowing = new UserFollowing();
@@ -57,7 +57,7 @@ public class UserFollowingService {
         User user = userService.getCurrentUser();
 
         UserFollowing userFollowing = userFollowingRepository.findByFollowerUserIdAndFollowingUserId(followee.getId(), user.getId())
-            .orElseThrow(() -> new CustomException("not found follow", HttpStatus.NOT_FOUND.value()));
+            .orElseThrow(() -> new CustomException("팔로잉 정보가 없습니다.", HttpStatus.NOT_FOUND.value()));
 
         userFollowingRepository.delete(userFollowing);
 
