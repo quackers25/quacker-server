@@ -36,11 +36,8 @@ public class JwtBlacklistService {
      */
     public boolean validateToken(String token) {
         String key = jwtTokenUtil.extractId(token);
-        if (jwtRepository.exisits(key)){
-            return false;
-        }
-
-        return true;
+        // 만료되지않았고, 블랙리스트에 없어야한다.
+        return !jwtTokenUtil.isTokenExpired(token) && !jwtRepository.exisits(key);
     }
 
     /**

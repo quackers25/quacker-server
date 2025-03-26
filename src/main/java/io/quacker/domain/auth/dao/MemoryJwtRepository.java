@@ -32,11 +32,12 @@ public class MemoryJwtRepository implements JwtRepository {
 
     @Override
     public String setex(String key, Date exp, String value) {
-        var item = mem.put(key, JwtItem.builder()
+
+        var item = JwtItem.builder()
                 .exp(exp)
                 .tokenId(value)
-                .build());
-
+                .build();
+        mem.put(key, item);
         return item.getTokenId().toString();
     }
 
@@ -45,11 +46,11 @@ public class MemoryJwtRepository implements JwtRepository {
         return mem.remove(key).getTokenId().toString();
     }
 
-    @Override
+
     @Scheduled(fixedDelay = 10000)
     public void deleteExpiredItem() {
         Date now = new Date();
-        mem.entrySet().removeIf(entry-> {
+        mem.entrySet().removeIf((var entry) -> {
             log.info("["+ entry.getKey() + "]" + "   만료시간: "+  entry.getValue().getExp().toString());
             return entry.getValue().getExp().before(now);
         });
