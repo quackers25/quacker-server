@@ -3,18 +3,32 @@ package io.quacker.domain.post.dto;
 import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.postimage.dto.PostImageDto;
 import io.quacker.domain.user.dto.UserDto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.util.List;
 
 @Builder
 public record PostDto(
+        @Schema(description = "게시글 ID", example = "1")
         Long id,
+
+        @Schema(description = "게시글 본문 내용", example = "오늘도 개발 중")
         String text,
+
+        @Schema(description = "좋아요 수", example = "15")
         int likeCount,
+
+        @Schema(description = "리트윗 수", example = "3")
         int repostCount,
+
+        @Schema(description = "작성자 정보")
         UserDto user,
-        PostDto originPost, // 리트윗, 공유된 원본 글
+
+        @Schema(description = "리트윗의 원본 게시글 정보")
+        PostDto originPost,
+
+        @Schema(description = "게시글에 포함된 이미지 목록")
         List<PostImageDto> images
 ) {
     // Post 엔티티를 PostDto로 변환하는 정적 팩토리 메서드
