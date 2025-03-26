@@ -1,8 +1,7 @@
 package io.quacker.domain.user.controller;
 
 import io.quacker.domain.auth.dto.JwtTokens;
-import io.quacker.domain.user.dto.UserCreateDto;
-import io.quacker.domain.user.dto.UserLoginDto;
+import io.quacker.domain.user.dto.*;
 import io.quacker.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +12,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -81,7 +82,8 @@ public class UserAuthController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@CookieValue(value = "refreshToken") String refreshToken) {
         if (refreshToken == null || refreshToken.isBlank()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("result", false));
         }
         JwtTokens tokens = userService.refresh(refreshToken);
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", tokens.accessToken())
@@ -98,7 +100,7 @@ public class UserAuthController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                .build();
+                .body(Map.of("result", true));
     }
 
     /**
@@ -129,5 +131,45 @@ public class UserAuthController {
                 .header(HttpHeaders.SET_COOKIE, access.toString())
                 .header(HttpHeaders.SET_COOKIE, refresh.toString())
                 .body("로그아웃성공");
+    }
+
+    //힌트로 이메일 찾기
+    @GetMapping("/hint")
+    public ResponseEntity<?> getEmailhint(@RequestBody UserHintDto userHintDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getEmailByHint(userHintDto.hint()));
+    }
+
+    // 이메일 중복 확인?
+    @PostMapping("/duplicate-email")
+    public ResponseEntity<?> duplicateEmail(@RequestBody UserEmailDto userEmailDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.checkDuplicateEmail(userEmailDto.email()));
+    }
+
+    // 사용자 이름 중복 확인
+    @GetMapping("/username/{username}")
+    public ResponseEntity<?> duplicateUsername(@RequestBody UserDto userDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.checkDuplicateUsername(userDto.name()));
+    }
+
+    // 이메일 인증 발송
+    @PostMapping("/send-code")
+    public ResponseEntity<?> createEmailSession(@RequestBody UserEmailDto userEmailDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.sendCode(userEmailDto.email()));
+    }
+
+    // 현재 캐시에 저장된 코드와 비교
+    @PutMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@RequestBody UserEmailCodeDto userEmailCodeDto) {
+        String email = userEmailCodeDto.email();
+        String code = userEmailCodeDto.code();
+        return ResponseEntity.status(HttpStatus.OK).body(userService.verifyEmailCode(email, code));
+    }
+
+
+    // 사용자 비밀번호 변경(인증 세션 필요)
+    @PutMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody UserResetPasswordDto userResetPasswordDto) {
+        userService.resetPassword(userResetPasswordDto);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("result", true));
     }
 }
