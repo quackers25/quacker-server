@@ -1,5 +1,6 @@
 package io.quacker.domain.userfollowing.controller;
 
+import io.quacker.domain.userfollowing.api.UserFollowApi;
 import io.quacker.domain.userfollowing.dto.FollowRequestDto;
 import io.quacker.domain.userfollowing.service.UserFollowingService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/v1")
 @RequiredArgsConstructor
-public class UserFollowingController {
+public class UserFollowingController implements UserFollowApi {
 
     private final UserFollowingService userFollowingService;
 
