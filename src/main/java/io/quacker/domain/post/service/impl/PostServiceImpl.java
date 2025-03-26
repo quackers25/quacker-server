@@ -1,11 +1,13 @@
 package io.quacker.domain.post.service.impl;
 
 import io.quacker.domain.post.dto.PostCreateRequestDto;
+import io.quacker.domain.post.dto.PostUpdateRequestDto;
 import io.quacker.domain.post.vo.SortBy;
 import io.quacker.domain.post.dao.PostRepository;
 import io.quacker.domain.post.dto.PostDto;
 import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.post.service.PostService;
+import io.quacker.domain.postimage.dao.PostImageRepository;
 import io.quacker.domain.postimage.entity.PostImage;
 import io.quacker.domain.postimage.service.PostImageService;
 import io.quacker.domain.user.entity.User;
@@ -22,6 +24,7 @@ import java.util.List;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
+    private final PostImageRepository postImageRepository;
     private final UserService userService;
     private final PostImageService postImageService;
     private final FileUploadService fileUploadService;
@@ -109,10 +112,31 @@ public class PostServiceImpl implements PostService {
     // 게시글 수정
     @Transactional
     @Override
-    public PostDto updatePost(Long postId, PostDto postDto) {
+    public PostDto updatePost(Long postId, PostUpdateRequestDto request) {
         Post post = findPostById(postId);
 
-        post.updateText(postDto.text());
+        // 텍스트 수정
+        post.updateText(request.text());
+
+        // 기존 이미지 삭제
+        if (request.deleteImageIds() != null && !request.deleteImageIds().isEmpty()) {
+            request.deleteImageIds().forEach(postImageService::deleteImage);
+        }
+
+        // 새 이미지 추가
+        if (request.newImages() != null && !request.newImages().isEmpty()) {
+            long currentCount = postImageRepository.countByPost(post);
+            long newCount = request.newImages().size();
+            if (currentCount + newCount > 4) {
+                throw new CustomException("이미지는 최대 4개까지만 등록할 수 있습니다.", 400);
+            }
+
+            List<String> newImageUrls = request.newImages().stream()
+                    .map(fileUploadService::uploadImage)
+                    .toList();
+
+            postImageService.saveImagesByUrls(newImageUrls, post);
+        }
 
         return PostDto.from(post);
     }

@@ -21,12 +21,6 @@ public class PostImageController {
         return ResponseEntity.ok(postImageService.getImagesByPostId(postId));
     }
 
-    // 게시글에 이미지 추가
-    @PostMapping
-    public ResponseEntity<PostImageDto> addImageToPost(@PathVariable Long postId, @RequestParam String imageUrl) {
-        return ResponseEntity.ok(postImageService.addImageToPost(postId, imageUrl));
-    }
-
     // 이미지 url 수정
     @PatchMapping("/{imageId}")
     public ResponseEntity<PostImageDto> updateImage(
