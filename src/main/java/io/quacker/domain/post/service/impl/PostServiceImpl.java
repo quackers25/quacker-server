@@ -101,8 +101,8 @@ public class PostServiceImpl implements PostService {
                 .originPost(originPost)
                 .build();
 
-        // 원본 게시글의 repostCount 증가
-        originPost.incrementRepostCount();
+        originPost.incrementRepostCount(); // 원본 게시글의 repostCount 증가
+        postRepository.save(originPost); // 명시적으로 저장
 
         postRepository.save(retweet);
 
