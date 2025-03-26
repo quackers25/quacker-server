@@ -69,6 +69,9 @@ public class PostServiceImpl implements PostService {
                 .user(user)
                 .build();
 
+        // 먼저 Post 저장
+        Post savedPost = postRepository.save(newPost);
+
         // 이미지가 있는 경우 처리
         if (request.images() != null && !request.images().isEmpty()) {
             List<String> imageUrls = request.images().stream()
@@ -76,10 +79,10 @@ public class PostServiceImpl implements PostService {
                     .map(fileUploadService::uploadImage) // S3에 업로드
                     .toList();
 
-            postImageService.saveImagesByUrls(imageUrls, newPost);
+            postImageService.saveImagesByUrls(imageUrls, savedPost);
         }
 
-        return PostDto.from(newPost);
+        return PostDto.from(savedPost);
     }
 
     // 리포스트
