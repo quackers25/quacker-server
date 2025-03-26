@@ -42,7 +42,7 @@ public class UserController {
     }
 
     // 프로필
-    @GetMapping("/edit")
+    @GetMapping("/")
     public ResponseEntity<?> getProfile() {
         return ResponseEntity
                 .status(HttpStatus.OK)
