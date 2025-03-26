@@ -1,7 +1,7 @@
-package io.quacker.domain.auth.dao;
+package io.quacker.domain.user.dao;
 
-import io.quacker.common.dao.JwtRepository;
-import io.quacker.domain.auth.dto.JwtItem;
+import io.quacker.common.dao.EmailCodeRepository;
+import io.quacker.domain.user.dto.EmailCodeItem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -10,10 +10,9 @@ import java.util.*;
 
 @Slf4j
 @EnableScheduling
-public class MemoryJwtRepository implements JwtRepository {
+public class MemoryEmailCodeRepository implements EmailCodeRepository {
 
-    //TODO 재발급 limit을 위한 카운트?
-    private final Map<String, JwtItem> mem = new HashMap<>();
+    private final Map<String, EmailCodeItem> mem = new HashMap<>();
 
     @Override
     public boolean exisits(String key) {
@@ -22,7 +21,7 @@ public class MemoryJwtRepository implements JwtRepository {
 
     @Override
     public Optional<String> get(String key) {
-        return Optional.ofNullable(mem.get(key).getTokenId().toString());
+        return Optional.ofNullable(mem.get(key).getCode());
     }
 
     @Override
@@ -32,25 +31,23 @@ public class MemoryJwtRepository implements JwtRepository {
 
     @Override
     public String setex(String key, Date exp, String value) {
-
-        var item = JwtItem.builder()
+        var save = EmailCodeItem.builder()
+                .code(value)
                 .exp(exp)
-                .tokenId(value)
                 .build();
-        mem.put(key, item);
-        return item.getTokenId().toString();
+        mem.put(key, save);
+        return save.getCode();
     }
 
     @Override
     public String delete(String key) {
-        return mem.remove(key).getTokenId().toString();
+        return mem.remove(key).getCode();
     }
-
 
     @Scheduled(fixedDelay = 10000)
     public void deleteExpiredItem() {
         Date now = new Date();
-        mem.entrySet().removeIf((var entry) -> {
+        mem.entrySet().removeIf(entry-> {
             log.info("["+ entry.getKey() + "]" + "   만료시간: "+  entry.getValue().getExp().toString());
             return entry.getValue().getExp().before(now);
         });
