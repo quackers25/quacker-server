@@ -22,19 +22,19 @@ public interface UserFollowApi {
                     "userId": 1,
                     "name": "이름",
                     "bio": "bio",
-                    "profileImageUrl": https://example.com/abc.jpg
+                    "profileImageUrl": "https://example.com/abc.jpg"
                 }
                 """),})),
         @ApiResponse(responseCode = "400", content = @Content(mediaType = "application/json", examples = {
             @ExampleObject(name = "팔로잉 실패 - 자기 자신 팔로잉", value = """
                 {
-                  "message": "자기 자신을 팔로잉 할 수 없습니다."
+                    "message": "자기 자신을 팔로잉 할 수 없습니다."
                 }
                 """),})),
-        @ApiResponse(responseCode = "400", content = @Content(mediaType = "application/json", examples = {
+        @ApiResponse(responseCode = "409", content = @Content(mediaType = "application/json", examples = {
             @ExampleObject(name = "팔로잉 실패 - 이미 등록한 팔로잉", value = """
                 {
-                  "message": "이미 팔로잉 한 유저 입니다."
+                    "message": "이미 팔로잉 한 유저 입니다."
                 }
                 """)}))})
     ResponseEntity<?> addFollowing(@RequestBody FollowRequestDto followRequestDto);
@@ -46,13 +46,13 @@ public interface UserFollowApi {
                     "userId": 1,
                     "name": "이름",
                     "bio": "bio",
-                    "profileImageUrl": https://example.com/abc.jpg
+                    "profileImageUrl": "https://example.com/abc.jpg"
                 }
                 """),})),
         @ApiResponse(responseCode = "400", content = @Content(mediaType = "application/json", examples = {
             @ExampleObject(name = "언 팔로잉 실패 - 팔로잉 하지 않은 유저 언팔로잉", value = """
                 {
-                  "message": "팔로잉 정보가 없습니다."
+                    "message": "팔로잉 정보가 없습니다."
                 }
                 """),})),})
     @DeleteMapping
@@ -66,13 +66,13 @@ public interface UserFollowApi {
                         "userId": 1,
                         "name": "이름",
                         "bio": "bio",
-                        "profileImageUrl": https://example.com/abc.jpg
+                        "profileImageUrl": "https://example.com/abc.jpg"
                     },
                     {
                         "userId": 2,
                         "name": "이름2",
                         "bio": "bio2",
-                        "profileImageUrl": https://example.com/bca.jpg
+                        "profileImageUrl": "https://example.com/bca.jpg"
                     },
                 ]
                 """),})),})
@@ -87,13 +87,13 @@ public interface UserFollowApi {
                         "userId": 4,
                         "name": "이름3",
                         "bio": "bio",
-                        "profileImageUrl": https://example.com/abc.jpg
+                        "profileImageUrl": "https://example.com/abc.jpg"
                     },
                     {
                         "userId": 5,
                         "name": "이름4",
                         "bio": "bio2",
-                        "profileImageUrl": https://example.com/bca.jpg
+                        "profileImageUrl": "https://example.com/bca.jpg"
                     },
                 ]
                 """),})),})
