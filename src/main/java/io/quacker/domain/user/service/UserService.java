@@ -137,6 +137,7 @@ public class UserService {
 
         // 토큰 Dto 반환
         return JwtTokens.builder()
+                .userId(user.getId())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
