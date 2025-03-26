@@ -266,32 +266,55 @@ public class UserService {
 
     /**
      * REQ_011	프로필 조회
-     * 나의 프로필 조회
+     * 특정 공개 사용자 조회,
+     * @param userId, Long
      * @return UserDto
      */
-    public UserDto getUserProfile() {
-        return UserDto.from(getCurrentUser());
+    public UserDto getUserById(Long userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", HttpStatus.BAD_REQUEST.value()));
+
+        // 본인이 아니고 비공개라면
+        if (user.isPrivate() && !userId.equals(user.getId()))
+            throw new CustomException("비공개 유저", HttpStatus.FORBIDDEN.value());
+
+        return UserDto.from(user);
     }
-//
-//    /**a
-//     * REQ_011	프로필 조회
-//     * 특정 사용자 조회
-//     * @param userId, Long
-//     * @return UserDto
-//     */
-//    public UserDto getUserById(Long userId) {
-//        return UserDto.from(userRepository.findById(userId)
-//                .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404)));
-//    }
-//
+
+    /**
+     * 토큰 소유자 확인
+     * @param userId,
+     * @return  userId가 현재 인증된 유저와 일치하는지 확인합니다.
+     */
+    public boolean isOwner(Long userId) {
+        var user = getCurrentUser();
+        return user.getId().equals(userId);
+    }
+
     /**
      * REQ_012	프로필 수정
-     * 나의 프로필 수정
+     * 본인 프로필 수정
+     * @param userId, Long
      * @param dto, UserUpdateDto
      * @return UserDto
      */
-    public UserDto updateUserProfile(UserUpdateDto dto) {
-        var user = getCurrentUser();
+    public UserDto updateMyProfile(Long userId, UserUpdateDto dto) {
+        if (!isOwner(userId)) {
+            throw new CustomException("권한없음", HttpStatus.FORBIDDEN.value());
+        }
+        return updateProfile(userId, dto);
+    }
+
+    /**
+     * REQ_012	프로필 수정
+     * 특정 프로필 수정
+     * @param userId, Long
+     * @param dto, UserUpdateDto
+     * @return UserDto
+     */
+    public UserDto updateProfile(Long userId, UserUpdateDto dto) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
         user.updateProfile(
                 dto.name(),
                 dto.bio(),
@@ -302,27 +325,6 @@ public class UserService {
 
         return UserDto.from(user);
     }
-//
-//    /**
-//     * REQ_012	프로필 수정
-//     * 특정 프로필 수정
-//     * @param userId, Long
-//     * @param dto, UserUpdateDto
-//     * @return UserDto
-//     */
-//    public UserDto updateUserProfile(Long userId, UserUpdateDto dto) {
-//        var user = userRepository.findById(userId)
-//                .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
-//        user.updateProfile(
-//                dto.name(),
-//                dto.bio(),
-//                dto.avatarImageUrl(),
-//                dto.isLocked(),
-//                dto.isPrivate()
-//        );
-//
-//        return UserDto.from(user);
-//    }
 
     /**
      * REQ_013	공개여부 토글
@@ -356,10 +358,7 @@ public class UserService {
         }
 
         user.setVerified(true);
-
-        /**
-         * ROLE 변경
-         */
+        //ROLE 변경? 불필요 어차피 이 요청이 끝나고 다시 인증객체가 생성되므로
 
         return true;
     }
