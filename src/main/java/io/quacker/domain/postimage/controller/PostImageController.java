@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/posts/{postId}/images")
+@RequestMapping("/api/v1//posts/{postId}/images")
 @Tag(name = "게시글 이미지 API", description = "게시글에 등록된 이미지를 조회, 수정, 삭제하는 API입니다.")
 public class PostImageController {
 
