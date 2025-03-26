@@ -1,5 +1,7 @@
 package io.quacker.domain.userfollowing.dto;
 
-public record FollowRequestDto(Long followingUserId) {
+import jakarta.validation.constraints.NotNull;
+
+public record FollowRequestDto(@NotNull Long followingUserId) {
 
 }
