@@ -5,10 +5,9 @@ import io.quacker.domain.comment.service.CommentService;
 import io.quacker.domain.comment.dto.CommentCreateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,28 +16,23 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/posts/{postId}/comments")
+@RequestMapping("/api/v1//posts/{postId}/comments")
 @RequiredArgsConstructor
+@Tag(name = "댓글 API", description = "게시글에 댓글을 등록, 조회, 수정, 삭제하는 API입니다.")
 public class CommentController {
 
     private final CommentService commentService;
 
-    @Operation(
-            summary = "댓글 작성",
-            description = "특정 게시글에 댓글을 작성합니다.",
-            requestBody = @RequestBody(
-                    description = "댓글 작성 요청",
-                    required = true,
-                    content = @Content(schema = @Schema(implementation = CommentCreateRequest.class))
-            ),
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "댓글 작성 완료")
-            }
-    )
+    @Operation(summary = "댓글 작성", description = "특정 게시글에 댓글을 작성합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "댓글 작성 완료"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
+    })
     @PostMapping
     public ResponseEntity<CommentDto> addComment(
             @Parameter(description = "게시글 ID", example = "1") @PathVariable Long postId,
-            @org.springframework.web.bind.annotation.RequestBody CommentCreateRequest request) {
+            @RequestBody CommentCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(commentService.addComment(postId, request.text()));
     }

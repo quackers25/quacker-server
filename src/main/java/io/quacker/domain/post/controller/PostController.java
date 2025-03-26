@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/api/v1//posts")
 @RequiredArgsConstructor
 @Tag(name = "게시글 API", description = "게시글 작성, 수정, 조회, 삭제 등의 기능을 제공합니다.")
 public class PostController {
