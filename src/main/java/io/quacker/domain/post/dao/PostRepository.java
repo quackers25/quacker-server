@@ -19,4 +19,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // 특정 키워드가 포함된 게시글 찾기 (대소문자 구분 없이 키워드 검색)
     Page<Post> findByTextContainingIgnoreCase(String keyword, Pageable pageable);
 
+    // 피드 조회 (팔로우한 사용자들의 게시글)
+    @Query("SELECT p FROM Post p WHERE p.user IN (SELECT f.followingUser FROM UserFollowing f WHERE f.followerUser = :user) ORDER BY p.createdAt DESC")
+    Page<Post> findFeedByUser(@Param("user") User user, Pageable pageable);
+
 }
