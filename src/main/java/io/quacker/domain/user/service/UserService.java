@@ -283,16 +283,6 @@ public class UserService {
     }
 
     /**
-     * 토큰 소유자 확인
-     * @param userId,
-     * @return  userId가 현재 인증된 유저와 일치하는지 확인합니다.
-     */
-    public boolean isOwner(Long userId) {
-        var user = getCurrentUser();
-        return user.getId().equals(userId);
-    }
-
-    /**
      * REQ_012	프로필 수정
      * 본인 프로필 수정
      * @param userId, Long
@@ -300,8 +290,8 @@ public class UserService {
      * @return UserDto
      */
     public UserDto updateMyProfile(Long userId, UserUpdateDto dto) {
-        if (!isOwner(userId)) {
-            //TODO : user엔티티를 쓰는 객체라면 또 find해야하므로 isOwner 다시 메서드안으로
+        var user = getCurrentUser();
+        if (!user.getId().equals(userId)) {
             throw new CustomException("권한없음", HttpStatus.FORBIDDEN.value());
         }
         return updateProfile(userId, dto);
