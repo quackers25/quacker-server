@@ -49,7 +49,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto getPost(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
         return PostDto.from(post);
     }
 
@@ -95,7 +95,7 @@ public class PostServiceImpl implements PostService {
         }
         
         // 해시태그 처리
-        hashtagService.updatePostHashtags(savedPost, postDto.text());
+        hashtagService.updatePostHashtags(savedPost, request.text());
         
         return PostDto.from(savedPost);
     }
@@ -105,10 +105,10 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostDto repost(Long postId, PostDto postDto) {
         Post originPost = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException("원본 게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException("원본 게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
 
         User user = userRepository.findById(postDto.user().id())
-                .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
 
         Post retweet = Post.builder()
                 .text(postDto.text() == null ? "" : postDto.text()) // 리트윗은 내용이 없을 수도 있음
@@ -131,7 +131,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto updatePost(Long postId, PostUpdateRequestDto request) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
 
         // 텍스트 수정
         post.updateText(request.text());
@@ -157,7 +157,7 @@ public class PostServiceImpl implements PostService {
         }
 
         // 해시태그 업데이트
-        hashtagService.updatePostHashtags(post, postDto.text());
+        hashtagService.updatePostHashtags(post, request.text());
 
         return PostDto.from(post);
     }
@@ -167,7 +167,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public boolean deletePost(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
 
         // 해시태그 처리
         hashtagService.handlePostDeletion(post);
