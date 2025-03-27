@@ -8,10 +8,10 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "해시태그 API", description = "해시태그를 조회하고 관리하는 API입니다.")
 @RequestMapping("/api/v1/hashtags")
@@ -24,24 +24,31 @@ public interface HashtagApi {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "검색 성공", content = @Content(mediaType = "application/json", examples = {
                     @ExampleObject(name = "검색 결과", value = """
-                            [
-                              {
-                                "id": 1,
-                                "name": "스프링",
-                                "postCount": 5
-                              },
-                              {
-                                "id": 2,
-                                "name": "스프링부트",
-                                "postCount": 3
-                              }
-                            ]
+                            {
+                              "content": [
+                                {
+                                  "id": 1,
+                                  "name": "스프링",
+                                  "postCount": 5
+                                },
+                                {
+                                  "id": 2,
+                                  "name": "스프링부트",
+                                  "postCount": 3
+                                }
+                              ],
+                              "totalElements": 2,
+                              "totalPages": 1,
+                              "size": 10,
+                              "number": 0
+                            }
                             """)
             }))
     })
     @GetMapping("/search")
-    ResponseEntity<List<HashtagResponse>> searchHashtags(
-            @Parameter(description = "검색할 키워드", example = "스프링") @RequestParam String keyword
+    ResponseEntity<Page<HashtagResponse>> searchHashtags(
+            @Parameter(description = "검색할 키워드", example = "스프링") @RequestParam String query,
+            @Parameter(description = "페이지 정보") Pageable pageable
     );
 
     @Operation(
@@ -50,22 +57,28 @@ public interface HashtagApi {
     )
     @ApiResponse(responseCode = "200", description = "인기 해시태그 목록", content = @Content(mediaType = "application/json", examples = {
             @ExampleObject(name = "인기 해시태그", value = """
-                    [
-                      {
-                        "id": 1,
-                        "name": "스프링",
-                        "postCount": 10
-                      },
-                      {
-                        "id": 2,
-                        "name": "자바",
-                        "postCount": 8
-                      }
-                    ]
+                    {
+                      "content": [
+                        {
+                          "id": 1,
+                          "name": "스프링",
+                          "postCount": 10
+                        },
+                        {
+                          "id": 2,
+                          "name": "자바",
+                          "postCount": 8
+                        }
+                      ],
+                      "totalElements": 2,
+                      "totalPages": 1,
+                      "size": 10,
+                      "number": 0
+                    }
                     """)
     }))
     @GetMapping("/trending")
-    ResponseEntity<List<HashtagResponse>> getTrendingHashtags(
-            @Parameter(description = "조회할 해시태그 개수", example = "10") @RequestParam(defaultValue = "10") int limit
+    ResponseEntity<Page<HashtagResponse>> getTrendingHashtags(
+            @Parameter(description = "페이지 정보") Pageable pageable
     );
 } 
