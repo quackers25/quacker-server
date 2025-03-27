@@ -96,14 +96,26 @@ public class Post extends BaseEntity {
         this.text = newText;
     }
 
-    public void incrementLikeCount() {
+    // 좋아요 수 증가
+    public void increaseLikeCount() {
         this.likeCount++;
     }
 
-    public void decrementLikeCount() {
+    // 좋아요 수 감소
+    public void decreaseLikeCount() {
+
         if (this.likeCount > 0) {
             this.likeCount--;
         }
+    }
+
+    // 이미지 추가
+    public void addImages(List<PostImage> images) {
+        if (this.postImages == null) {
+            this.postImages = new ArrayList<>();
+        }
+
+        this.postImages.addAll(images);
     }
 
     public void addHashtagPost(HashtagPost hashtagPost) {
@@ -131,4 +143,5 @@ public class Post extends BaseEntity {
                 .map(HashtagPost::getHashtag)
                 .collect(java.util.stream.Collectors.toSet());
     }
+
 }

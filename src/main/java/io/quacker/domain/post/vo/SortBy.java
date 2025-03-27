@@ -3,16 +3,16 @@ package io.quacker.domain.post.vo;
 import org.springframework.data.domain.Sort;
 
 public enum SortBy {
-    NEWEST(Sort.by(Sort.Direction.DESC, "createdAt")),  // 최신순 정렬
-    LIKES(Sort.by(Sort.Direction.DESC, "likeCount"));   // 좋아요순 정렬
+    NEWEST("createdAt"),
+    LIKES("likeCount");
 
-    private final Sort sort;
+    private final String property;
 
-    SortBy(Sort sort) {
-        this.sort = sort;
+    SortBy(String property) {
+        this.property = property;
     }
 
     public Sort getSort() {
-        return this.sort;
+        return Sort.by(Sort.Direction.DESC, property);
     }
 }
