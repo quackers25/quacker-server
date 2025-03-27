@@ -79,7 +79,9 @@ public class UserAuthController {
      * @return
      */
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@CookieValue(value = "refreshToken") String refreshToken) {
+    public ResponseEntity<?> refresh(
+            @CookieValue(value = "refreshToken") String refreshToken
+    ) {
         if (refreshToken == null || refreshToken.isBlank()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("result", false));
@@ -129,7 +131,7 @@ public class UserAuthController {
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, access.toString())
                 .header(HttpHeaders.SET_COOKIE, refresh.toString())
-                .body("로그아웃성공");
+                .body(Map.of("result", true));
     }
 
     //힌트로 이메일 찾기
