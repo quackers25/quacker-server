@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/hashtags")
+@RequestMapping("/api/v1/hashtags")
 @RequiredArgsConstructor
 public class HashtagController {
 
