@@ -131,7 +131,7 @@ public class UserService {
         }
 
         // 토큰생성
-        String accessToken = jwtTokenUtil.generateAccessToken(user.getId(), email, "");
+        String accessToken = jwtTokenUtil.generateAccessToken(user.getId(), email, "user");
         // if (dto.isAutoLogin() ? "30일" : "1~2시간")
         String refreshToken = jwtTokenUtil.generateRefreshToken(user.getId());
 
