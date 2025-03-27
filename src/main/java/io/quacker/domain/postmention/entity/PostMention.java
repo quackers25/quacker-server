@@ -10,8 +10,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class PostMention extends BaseEntity {
 
     @Id
@@ -25,4 +27,15 @@ public class PostMention extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")
     private User user;
+
+    public void setPost(Post post) {
+        this.post = post;
+        post.addPostMention(this);
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        user.addPostMention(this);
+    }
+
 }
