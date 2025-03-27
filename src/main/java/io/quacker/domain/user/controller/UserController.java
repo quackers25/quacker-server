@@ -19,7 +19,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN_READ') or #userId == principal.userId")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or #userId == principal.userId")
     @PatchMapping("/{userId}/visibility")
     public ResponseEntity<?> toggleVisibility(){
         userService.toggleVisibility();
@@ -29,7 +29,7 @@ public class UserController {
     }
 
     //삭제 "요청"
-    @PreAuthorize("hasAuthority('ROLE_ADMIN_READ') or #userId == principal.userId")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or #userId == principal.userId")
     @PostMapping("/{userId}/delete")
     public ResponseEntity<?> requestDelete(@PathVariable("userId") Long userId) {
         return ResponseEntity
@@ -38,7 +38,7 @@ public class UserController {
     }
 
     //삭제 취소
-    @PreAuthorize("hasAuthority('ROLE_ADMIN_READ') or #userId == principal.userId")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or #userId == principal.userId")
     @PostMapping("/{userId}/abort")
     public ResponseEntity<?> abort(@PathVariable("userId") Long userId) {
         userService.abortUserDeletion();
@@ -56,7 +56,7 @@ public class UserController {
     }
 
     // 프로필 수정
-    @PreAuthorize("hasAuthority('ROLE_ADMIN_READ') or #userId == principal.userId")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or #userId == principal.userId")
     @PutMapping("/{userId}/edit")
     public ResponseEntity<?> editProfile(
             @PathVariable("userId") Long userId,
