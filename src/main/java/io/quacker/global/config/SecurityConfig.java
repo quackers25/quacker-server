@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private static final String[] WITHE_LIST =
-        {"/h2-console/**", "/api/v1/auth/login", "/api/v1/auth/join", "/api/v1/auth/refresh" , "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**"};
+        {"/h2-console/**", "/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**"};
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -37,15 +37,13 @@ public class SecurityConfig {
                                            JwtAuthenticationProvider jwtTokenAuthenticationProvider)
         throws Exception {
         return http
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin))  // iframe 허용하기 위하여
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(WITHE_LIST)
-                    .permitAll()
-                    .requestMatchers("/api/v1/auth/logout").authenticated()
-                    .anyRequest().authenticated()
-//                                .anyRequest().permitAll()
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))  // iframe 허용하기 위하여
+                .authorizeHttpRequests(auth -> auth
+                                .requestMatchers(WITHE_LIST).permitAll()
+                                .requestMatchers("/api/v1/auth/logout").authenticated()
+                                .anyRequest().authenticated()
             )
             .authenticationProvider(jwtTokenAuthenticationProvider)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

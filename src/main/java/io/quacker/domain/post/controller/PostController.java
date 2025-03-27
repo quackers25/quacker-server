@@ -36,10 +36,12 @@ public class PostController implements PostApi {
     }
 
     @GetMapping("/user/{userId}")
+
     public ResponseEntity<Page<PostDto>> getPostsByUser(
             @RequestParam(required = false, defaultValue = "newest") SortBy sortBy,
             @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(postService.getPostsByUserId(sortBy, pageable));
+
     }
 
     @GetMapping("/search")

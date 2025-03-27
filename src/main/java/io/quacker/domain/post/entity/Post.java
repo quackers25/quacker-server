@@ -7,15 +7,21 @@ import io.quacker.domain.postimage.entity.PostImage;
 import io.quacker.domain.postlike.entity.PostLike;
 import io.quacker.domain.postmention.entity.PostMention;
 import io.quacker.domain.user.entity.User;
+import io.quacker.domain.hashtag.entity.Hashtag;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.beans.Transient;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,17 +38,34 @@ public class Post extends BaseEntity {
     @Column(name = "text")
     private String text;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Column(name = "like_count")
     private int likeCount = 0;
 
+    @Column(name = "repost_count")
     private int repostCount = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ORIGIN_POST_ID")
+    @JoinColumn(name = "origin_post_id")
     private Post originPost;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    private User user;
+    @Version
+    private Long version;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<HashtagPost> hashtagPosts = new ArrayList<>();
+
+    @CreationTimestamp
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<>();
@@ -52,9 +75,6 @@ public class Post extends BaseEntity {
 
     @OneToMany(mappedBy = "post")
     private List<PostMention> postMentions = new ArrayList<>();
-
-    @OneToMany(mappedBy = "post")
-    private List<HashtagPost> hashtagPosts = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
     private List<PostLike> likes = new ArrayList<>();
@@ -83,6 +103,7 @@ public class Post extends BaseEntity {
 
     // 좋아요 수 감소
     public void decreaseLikeCount() {
+
         if (this.likeCount > 0) {
             this.likeCount--;
         }
@@ -95,6 +116,32 @@ public class Post extends BaseEntity {
         }
 
         this.postImages.addAll(images);
+    }
+
+    public void addHashtagPost(HashtagPost hashtagPost) {
+        if (this.hashtagPosts == null) {
+            this.hashtagPosts = new ArrayList<>();
+        }
+        this.hashtagPosts.add(hashtagPost);
+    }
+
+    public void removeHashtagPost(HashtagPost hashtagPost) {
+        if (this.hashtagPosts != null) {
+            this.hashtagPosts.remove(hashtagPost);
+        }
+    }
+
+    public List<HashtagPost> getHashtagPosts() {
+        if (this.hashtagPosts == null) {
+            this.hashtagPosts = new ArrayList<>();
+        }
+        return hashtagPosts;
+    }
+
+    public Set<Hashtag> getHashtags() {
+        return this.hashtagPosts.stream()
+                .map(HashtagPost::getHashtag)
+                .collect(java.util.stream.Collectors.toSet());
     }
 
 }

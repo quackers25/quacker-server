@@ -17,8 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
 
@@ -33,6 +31,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtBlacklistService jwtBlacklistService;
     private final UserDeletionService userDeletionService;
+    private final EmailCodeService emailCodeService;
     private final Long PENDDING_TIME = 60000L;
     /**
      * 토큰 재발급 요청
@@ -77,14 +76,13 @@ public class UserService {
      */
     public UserDto join(UserCreateDto dto) {
 
+        /**
+         * 인증받지않은 유저
+         */
+
         String email = dto.email();
         String rawPw = dto.password();
         String rawConfirmPw = dto.confirmPassword();
-
-        /*
-         *  이메일 유효 검사 추가 할 것
-         *  인증 세션 확인
-         */
 
         // 암호와 암호확인문 일치 확인
         if (!rawPw.equals(rawConfirmPw)) {
@@ -120,6 +118,11 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException("유저를 찾을 수 없음", HttpStatus.NOT_FOUND.value()));
 
+        if (user.getDeletedAt() != null) {
+            // 삭제된 유저
+            throw new CustomException("유저를 찾을 수 없음", HttpStatus.NOT_FOUND.value());
+        }
+
         String hashedPw = user.getPassword();
 
         // 비밀번호 일치 확인
@@ -134,6 +137,7 @@ public class UserService {
 
         // 토큰 Dto 반환
         return JwtTokens.builder()
+                .userId(user.getId())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -173,15 +177,13 @@ public class UserService {
             throw new CustomException("이미 탈퇴 요청함", HttpStatus.BAD_REQUEST.value());
         }
         // User 조회
+        Date exp = new Date(System.currentTimeMillis() + PENDDING_TIME);
+        Date current = new Date();
+        userDeletionService.addRequest(user.getId(), exp);
+
 
         // User 정지
         user.freeze();
-
-        Date exp = new Date(System.currentTimeMillis() + PENDDING_TIME);
-        Date current = new Date();
-
-        // User 삭제 대기
-        userDeletionService.addRequest(user.getId(), exp);
 
         return Map.of("requestAt", current, "deleteAt", exp);
     }
@@ -209,16 +211,24 @@ public class UserService {
      *
      * @param dto 비밀번호, 확인 비밀번호를 담은 dto
      */
-    public void resetPassword(UserCreateDto dto) {
+    @Transactional
+    public void resetPassword(UserResetPasswordDto dto) {
 
-        //Todo : 인증 세션, 또는 인증코드리스트 유지 존재하는 요청인지 확인해한다.
+        // 인증코드 검증
+        if(!emailCodeService.verifyCode(dto.email(), dto.code())) {
+            throw new CustomException("인증코드가 유효하지않음", HttpStatus.BAD_REQUEST.value());
+        }
 
-        if (!dto.password().equals(dto.confirmPassword()))
+        // 새 비밀번호가 유효하지않음
+        if (!dto.newPassword().equals(dto.newConfirmPassword()))
             throw new CustomException("비밀번호가 일치하지 않음", 400);
+
+        // 이메일로 유저 찾기
         var user = userRepository.findByEmail(dto.email())
                 .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
 
-        String hashedPw = passwordEncoder.encode(dto.password());
+        // 인코딩 후 저장
+        String hashedPw = passwordEncoder.encode(dto.newPassword());
         user.changePassword(hashedPw);
     }
 
@@ -257,41 +267,43 @@ public class UserService {
 
     /**
      * REQ_011	프로필 조회
-     * 나의 프로필 조회
-     * @return UserDto
-     */
-    public UserDto getUserProfile() {
-        return UserDto.from(getCurrentUser());
-    }
-
-    /**a
-     * REQ_011	프로필 조회
-     * 특정 사용자 조회
+     * 특정 공개 사용자 조회,
      * @param userId, Long
      * @return UserDto
      */
     public UserDto getUserById(Long userId) {
-        return UserDto.from(userRepository.findById(userId)
-                .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404)));
+        var user = userRepository.findById(userId)
+                .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", HttpStatus.BAD_REQUEST.value()));
+
+        // 본인이 아니고 비공개라면
+        if (user.isPrivate() && !userId.equals(user.getId()))
+            throw new CustomException("비공개 유저", HttpStatus.FORBIDDEN.value());
+
+        return UserDto.from(user);
+    }
+
+    /**
+     * 토큰 소유자 확인
+     * @param userId,
+     * @return  userId가 현재 인증된 유저와 일치하는지 확인합니다.
+     */
+    public boolean isOwner(Long userId) {
+        var user = getCurrentUser();
+        return user.getId().equals(userId);
     }
 
     /**
      * REQ_012	프로필 수정
-     * 나의 프로필 수정
+     * 본인 프로필 수정
+     * @param userId, Long
      * @param dto, UserUpdateDto
      * @return UserDto
      */
-    public UserDto updateUserProfile(UserUpdateDto dto) {
-        var user = getCurrentUser();
-        user.updateProfile(
-                dto.name(),
-                dto.bio(),
-                dto.avatarImageUrl(),
-                dto.isLocked(),
-                dto.isPrivate()
-        );
-
-        return UserDto.from(user);
+    public UserDto updateMyProfile(Long userId, UserUpdateDto dto) {
+        if (!isOwner(userId)) {
+            throw new CustomException("권한없음", HttpStatus.FORBIDDEN.value());
+        }
+        return updateProfile(userId, dto);
     }
 
     /**
@@ -301,7 +313,7 @@ public class UserService {
      * @param dto, UserUpdateDto
      * @return UserDto
      */
-    public UserDto updateUserProfile(Long userId, UserUpdateDto dto) {
+    public UserDto updateProfile(Long userId, UserUpdateDto dto) {
         var user = userRepository.findById(userId)
                 .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
         user.updateProfile(
@@ -325,21 +337,32 @@ public class UserService {
 
     /**
      *
+     * @return
+     */
+    public Map<?,?> sendCode(String email) {
+        return Map.of("sentAT", emailCodeService.sendCode(email));
+    }
+
+    /**
+     *
      * @param email
      * @return
      */
-    public boolean verifyEmail(String email) {
+    @Transactional
+    public boolean verifyEmailCode(String email, String code) {
+        User user = getCurrentUser();
+
         // 이메일 보내기
         // 언제 이메일을 보냈는가를 확인해야함, 횟수 제한을 위하여
-
-
-        LocalDateTime expiration = LocalDateTime.now().plus(5, ChronoUnit.MINUTES);
-        if (expiration.isAfter(LocalDateTime.now())) {
-
+        if (!emailCodeService.verifyCode(email, code)) {
+            throw new CustomException("코드 인증 실패", HttpStatus.BAD_REQUEST.value());
         }
-        return false;
-    }
 
+        user.setVerified(true);
+        //ROLE 변경? 불필요 어차피 이 요청이 끝나고 다시 인증객체가 생성되므로
+
+        return true;
+    }
 
     /**
      * 현재 로그인된 User 영속성 엔티티 반환.
