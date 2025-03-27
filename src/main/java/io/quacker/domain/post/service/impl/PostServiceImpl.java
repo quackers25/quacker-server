@@ -107,8 +107,7 @@ public class PostServiceImpl implements PostService {
         Post originPost = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException("원본 게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
 
-        User user = userRepository.findById(postDto.user().id())
-                .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
+        User user = userService.getCurrentUser();
 
         Post retweet = Post.builder()
                 .text(postDto.text() == null ? "" : postDto.text()) // 리트윗은 내용이 없을 수도 있음
