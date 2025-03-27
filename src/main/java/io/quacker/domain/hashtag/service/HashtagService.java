@@ -127,16 +127,14 @@ public class HashtagService {
     /**
      * 인기 해시태그 조회
      */
-    public Page<HashtagResponse> getTrendingHashtags(Pageable pageable) {
-        return hashtagRepository.findTrendingHashtags(pageable)
-                .map(HashtagResponse::from);
+    public Page<Hashtag> getTrendingHashtags(Pageable pageable) {
+        return hashtagRepository.findTrendingHashtags(pageable);
     }
 
     /**
      * 해시태그 검색
      */
-    public Page<HashtagResponse> searchHashtags(String query, Pageable pageable) {
-        return hashtagRepository.searchHashtags(query, pageable)
-                .map(HashtagResponse::from);
+    public Page<Hashtag> searchHashtags(String query, Pageable pageable) {
+        return hashtagRepository.searchHashtags(query, pageable);
     }
 } 

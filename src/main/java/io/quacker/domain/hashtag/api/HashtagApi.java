@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,8 +48,7 @@ public interface HashtagApi {
     @GetMapping("/search")
     ResponseEntity<Page<HashtagResponse>> searchHashtags(
             @Parameter(description = "검색할 키워드", example = "스프링") @RequestParam String query,
-            @Parameter(description = "페이지 번호", example = "0") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "페이지 크기", example = "10") @RequestParam(defaultValue = "10") int size
+            @Parameter(description = "페이지 정보") Pageable pageable
     );
 
     @Operation(
@@ -79,7 +79,6 @@ public interface HashtagApi {
     }))
     @GetMapping("/trending")
     ResponseEntity<Page<HashtagResponse>> getTrendingHashtags(
-            @Parameter(description = "페이지 번호", example = "0") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "페이지 크기", example = "10") @RequestParam(defaultValue = "10") int size
+            @Parameter(description = "페이지 정보") Pageable pageable
     );
 } 
