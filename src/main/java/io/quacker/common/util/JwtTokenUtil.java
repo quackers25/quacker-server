@@ -33,28 +33,17 @@ public class JwtTokenUtil {
      * Access JWT 토큰 생성 (사용자 ID, 이메일 포함)
      * @param userId, 고유식별자
      * @param email, 참고
-     * @param name, 참고
+     * @param role, 참고
      * @return String, 접근토큰
      */
-    public String generateAccessToken(Long userId, String email, String name) {
+    public String generateAccessToken(Long userId, String email, String role) {
         String jwtId = UUID.randomUUID().toString();
         return Jwts.builder()
-                .setClaims(Map.of("email", email, "name", name)) // email 저장
+                .setClaims(Map.of("email", email, "role", role)) // email 저장
                 .setSubject(userId.toString()) // 사용자 id 저장,
                 .setId(jwtId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
-    }
-    public String generateAccess2Token(Long userId, String email, String name) {
-        String jwtId = UUID.randomUUID().toString();
-        return Jwts.builder()
-                .setClaims(Map.of("email", email, "name", name)) // email 저장
-                .setSubject(userId.toString()) // 사용자 id 저장,
-                .setId(jwtId)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 3*1000))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -120,6 +109,16 @@ public class JwtTokenUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getExpiration();
+    }
+
+    public String extractRole(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role")
+                .toString();
     }
 
     /**
