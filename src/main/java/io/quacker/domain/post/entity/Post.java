@@ -82,6 +82,7 @@ public class Post extends BaseEntity {
     private List<PostImage> postImages = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
+    @Builder.Default
     private List<PostMention> postMentions = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
@@ -151,7 +152,7 @@ public class Post extends BaseEntity {
     }
 
     public void addPostMention(PostMention postMention) {
-        postMention.setPost(this);
+        this.getPostMentions().add(postMention);
     }
 
     public Set<Hashtag> getHashtags() {
