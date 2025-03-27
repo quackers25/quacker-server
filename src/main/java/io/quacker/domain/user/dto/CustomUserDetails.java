@@ -17,8 +17,6 @@ public class CustomUserDetails implements UserDetails {
     private final String password;
     private List<GrantedAuthority> authorities;
 
-
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
