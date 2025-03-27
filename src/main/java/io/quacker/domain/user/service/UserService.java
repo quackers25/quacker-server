@@ -35,35 +35,35 @@ public class UserService {
     private final Long PENDDING_TIME = 60000L;
     /**
      * 토큰 재발급 요청
-     * @param token
+     * @param refreshToken
      */
-    public JwtTokens refresh(String token) {
+    public JwtTokens refresh(String refreshToken) {
 
         // 리프레시 토큰 유료검사
-        if (jwtTokenUtil.isTokenExpired(token)){
+        if (jwtTokenUtil.isTokenExpired(refreshToken)){
             throw new CustomException("유효하지 않은 토큰", HttpStatus.BAD_REQUEST.value());
         }
 
         // 블랙리스트 유효 검사
-        if (!jwtBlacklistService.validateToken(token)) {
+        if (!jwtBlacklistService.validateToken(refreshToken)) {
             throw new CustomException("유효하지 않은 리프레시 토큰", HttpStatus.BAD_REQUEST.value());
         }
 
         // 리프레시토큰 블랙리스트 등록
-        jwtBlacklistService.registerToken(token);
+        jwtBlacklistService.registerToken(refreshToken);
 
         // 토큰 subject 추출
-        User user = userRepository.findById(jwtTokenUtil.extractUserId(token))
+        User user = userRepository.findById(jwtTokenUtil.extractUserId(refreshToken))
                 .orElseThrow(() -> new CustomException("유저를 찾을 수 없음", HttpStatus.NOT_FOUND.value()));
 
         // 토큰 재발급
-        String accessToken = jwtTokenUtil.generateAccessToken(user.getId(), user.getEmail(), user.getName());
-        String refreshToken = jwtTokenUtil.generateRefreshToken(user.getId());
+        String newAccessToken = jwtTokenUtil.generateAccessToken(user.getId(), user.getEmail(), user.getName());
+        String newRefreshToken = jwtTokenUtil.generateRefreshToken(user.getId());
 
         // 토큰 Dto 반환
         return JwtTokens.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
                 .build();
     }
 
@@ -131,7 +131,7 @@ public class UserService {
         }
 
         // 토큰생성
-        String accessToken = jwtTokenUtil.generateAccessToken(user.getId(), email, "");
+        String accessToken = jwtTokenUtil.generateAccessToken(user.getId(), email, "user");
         // if (dto.isAutoLogin() ? "30일" : "1~2시간")
         String refreshToken = jwtTokenUtil.generateRefreshToken(user.getId());
 
@@ -152,14 +152,15 @@ public class UserService {
      * @param refreshTokenId
      */
     public void logout(String accessTokenId, String refreshTokenId) {
-
-        // 익명 사용자 예외처리
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
-            throw new CustomException("인증되지 않음", 403);
-        }
+//
+//        // 익명 사용자 예외처리
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+//            throw new CustomException("인증되지 않음", 403);
+//        }
 
         // 토큰 블랙리스트 등록
+        // 블랙리스트에 기존 토큰 등록(만료시킴)
         jwtBlacklistService.registerToken(accessTokenId);
         jwtBlacklistService.registerToken(refreshTokenId);
     }
@@ -283,30 +284,6 @@ public class UserService {
     }
 
     /**
-     * 토큰 소유자 확인
-     * @param userId,
-     * @return  userId가 현재 인증된 유저와 일치하는지 확인합니다.
-     */
-    public boolean isOwner(Long userId) {
-        var user = getCurrentUser();
-        return user.getId().equals(userId);
-    }
-
-    /**
-     * REQ_012	프로필 수정
-     * 본인 프로필 수정
-     * @param userId, Long
-     * @param dto, UserUpdateDto
-     * @return UserDto
-     */
-    public UserDto updateMyProfile(Long userId, UserUpdateDto dto) {
-        if (!isOwner(userId)) {
-            throw new CustomException("권한없음", HttpStatus.FORBIDDEN.value());
-        }
-        return updateProfile(userId, dto);
-    }
-
-    /**
      * REQ_012	프로필 수정
      * 특정 프로필 수정
      * @param userId, Long
@@ -368,22 +345,22 @@ public class UserService {
      * 현재 로그인된 User 영속성 엔티티 반환.
      * @return User
      */
-   public User getCurrentUser() throws CustomException{
+    public User getCurrentUser() throws CustomException{
 
-       var auth = SecurityContextHolder.getContext().getAuthentication();
-       if (auth == null || auth instanceof AnonymousAuthenticationToken) {
-           throw new CustomException("인증되지 않음", HttpStatus.BAD_REQUEST.value());
-       }
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+            throw new CustomException("인증되지 않음", HttpStatus.BAD_REQUEST.value());
+        }
 
-       if (!(auth.getPrincipal() instanceof CustomUserDetails)) {
-           throw new CustomException("인증되지 않음", 500);
-       }
+        if (!(auth.getPrincipal() instanceof CustomUserDetails)) {
+            throw new CustomException("인증되지 않음", 500);
+        }
 
-       Long userId = ((CustomUserDetails)auth.getPrincipal()).getUserId();
+        Long userId = ((CustomUserDetails)auth.getPrincipal()).getUserId();
 
-       return userRepository.findById(userId)
-               .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
-   }
+        return userRepository.findById(userId)
+                .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
+    }
 }
 
 
