@@ -152,14 +152,15 @@ public class UserService {
      * @param refreshTokenId
      */
     public void logout(String accessTokenId, String refreshTokenId) {
-
-        // 익명 사용자 예외처리
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
-            throw new CustomException("인증되지 않음", 403);
-        }
+//
+//        // 익명 사용자 예외처리
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+//            throw new CustomException("인증되지 않음", 403);
+//        }
 
         // 토큰 블랙리스트 등록
+        // 블랙리스트에 기존 토큰 등록(만료시킴)
         jwtBlacklistService.registerToken(accessTokenId);
         jwtBlacklistService.registerToken(refreshTokenId);
     }
@@ -280,21 +281,6 @@ public class UserService {
             throw new CustomException("비공개 유저", HttpStatus.FORBIDDEN.value());
 
         return UserDto.from(user);
-    }
-
-    /**
-     * REQ_012	프로필 수정
-     * 본인 프로필 수정
-     * @param userId, Long
-     * @param dto, UserUpdateDto
-     * @return UserDto
-     */
-    public UserDto updateMyProfile(Long userId, UserUpdateDto dto) {
-        var user = getCurrentUser();
-        if (!user.getId().equals(userId)) {
-            throw new CustomException("권한없음", HttpStatus.FORBIDDEN.value());
-        }
-        return updateProfile(userId, dto);
     }
 
     /**
