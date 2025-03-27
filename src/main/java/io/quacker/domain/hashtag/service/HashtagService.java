@@ -1,6 +1,7 @@
 package io.quacker.domain.hashtag.service;
 
 import io.quacker.domain.hashtag.dao.HashtagRepository;
+import io.quacker.domain.hashtag.dto.HashtagResponse;
 import io.quacker.domain.hashtag.entity.Hashtag;
 import io.quacker.domain.hashtagpost.entity.HashtagPost;
 import io.quacker.domain.post.entity.Post;
