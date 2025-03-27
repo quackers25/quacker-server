@@ -28,10 +28,14 @@ public class PostMentionService {
         List<String> usernames = extractMentionUserNames(post.getText());
         List<User> users = findMentionsUsers(usernames);
 
+        System.out.println(usernames);
+        System.out.println(users);
+
         for (User user : users) {
             PostMention postMention = new PostMention();
             postMention.setPost(post);
             postMention.setUser(user);
+            System.out.println("tlqkf");
             postMentionRepository.save(postMention);
         }
     }
@@ -61,7 +65,7 @@ public class PostMentionService {
         Matcher matcher = HASHTAG_PATTERN.matcher(content);
 
         while (matcher.find()) {
-            mentionUserName.add(matcher.group());
+            mentionUserName.add(matcher.group().replace("@", ""));
         }
 
         return mentionUserName;
