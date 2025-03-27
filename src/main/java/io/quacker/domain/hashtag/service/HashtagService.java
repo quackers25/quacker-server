@@ -1,6 +1,7 @@
 package io.quacker.domain.hashtag.service;
 
 import io.quacker.domain.hashtag.dao.HashtagRepository;
+import io.quacker.domain.hashtag.dto.HashtagResponse;
 import io.quacker.domain.hashtag.entity.Hashtag;
 import io.quacker.domain.hashtagpost.entity.HashtagPost;
 import io.quacker.domain.post.entity.Post;
@@ -126,14 +127,16 @@ public class HashtagService {
     /**
      * 인기 해시태그 조회
      */
-    public Page<Hashtag> getTrendingHashtags(Pageable pageable) {
-        return hashtagRepository.findTrendingHashtags(pageable);
+    public Page<HashtagResponse> getTrendingHashtags(Pageable pageable) {
+        return hashtagRepository.findTrendingHashtags(pageable)
+                .map(HashtagResponse::from);
     }
 
     /**
      * 해시태그 검색
      */
-    public Page<Hashtag> searchHashtags(String query, Pageable pageable) {
-        return hashtagRepository.searchHashtags(query, pageable);
+    public Page<HashtagResponse> searchHashtags(String query, Pageable pageable) {
+        return hashtagRepository.searchHashtags(query, pageable)
+                .map(HashtagResponse::from);
     }
 } 
