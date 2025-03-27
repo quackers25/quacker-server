@@ -97,12 +97,12 @@ public class Post extends BaseEntity {
     }
 
     // 좋아요 수 증가
-    public void increaseLikeCount() {
+    public void incrementLikeCount() {
         this.likeCount++;
     }
 
     // 좋아요 수 감소
-    public void decreaseLikeCount() {
+    public void decrementLikeCount() {
 
         if (this.likeCount > 0) {
             this.likeCount--;
