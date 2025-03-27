@@ -2,8 +2,10 @@ package io.quacker.domain.post.service;
 
 import io.quacker.domain.post.dto.PostCreateRequestDto;
 import io.quacker.domain.post.dto.PostUpdateRequestDto;
+import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.post.vo.SortBy;
 import io.quacker.domain.post.dto.PostDto;
+import io.quacker.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
