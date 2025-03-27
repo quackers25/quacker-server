@@ -2,51 +2,64 @@ package io.quacker.domain.user.service;
 
 import io.quacker.common.dao.UserDeletionRepository;
 import io.quacker.domain.user.dao.UserRepository;
-import io.quacker.domain.user.dto.DeletionItem;
-import io.quacker.domain.user.entity.User;
 import io.quacker.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
-@EnableScheduling
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class UserDeletionService {
 
-    private final UserRepository userRepository;
     private final UserDeletionRepository userDeletionRepository;
-
+    private final UserRepository userRepository;
 
     public void addRequest(Long userId, Date exp) {
         userDeletionRepository.setex(String.valueOf(userId), exp, "");
     }
 
-    public String abortRequest(String key) {
-        return userDeletionRepository.delete(key);
+    public void abortRequest(String key) {
+        if (!userDeletionRepository.exisits(key))
+            throw new CustomException("취소할 삭제요청이 없습니다.", HttpStatus.BAD_REQUEST.value());
+        userDeletionRepository.delete(key);
     }
 
     /**
-     * 배치나, 스케줄 추가하여 만료토큰 정기적으로 삭제?
-     * 현시간 부로 만료된 토큰을 모두 제거
-     * 10초마다 삭제
+     * 완전 삭제가 아님
      */
     @Scheduled(fixedDelay = 10000)
+    @Transactional
     public void deleteExpiredItem() {
-        // 저장소의 모든 키를 순회하며 만료된 요청을 삭제
-        for (Object key : userDeletionRepository.getAllKeys()) {
-            DeletionItem item = (DeletionItem)key;
+        Date now = new Date();
+        List<String> keys =  userDeletionRepository.getAllExpiredKeys(now);
 
-            if (item.getExp().before(new Date())) {
-                User user = userRepository.findById((Long)item.getUserId())
-                        .orElseThrow(()-> new CustomException("", HttpStatus.BAD_REQUEST.value()));
-                userRepository.delete(user);
-                userDeletionRepository.delete((String) item.getUserId());
-            }
+        if(!keys.isEmpty())
+            log.info(String.format("%d users deleted.", keys.size()));
+
+        for (String key : keys) {
+            var id = Long.parseLong(key);
+            if (!userRepository.existsById(id))
+                continue;
+
+            var user = userRepository.findById(id).get();
+
+            // 소프트 삭제 처리
+            user.setDeletedAt(now);
+            /*
+            다른 개인정보 필드 마스킹 또는 지우기
+             */
+
+            // 요청 캐시 삭제
+            userDeletionRepository.delete(key);
+
+            //TODO 삭제 대상자의 토큰 모두 만료 필요
         }
     }
 }

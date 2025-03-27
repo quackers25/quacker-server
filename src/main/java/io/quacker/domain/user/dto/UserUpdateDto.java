@@ -21,13 +21,9 @@ public record UserUpdateDto(
 
         String avatarImageUrl,
 
-        boolean isVerified,
-
         boolean isLocked, // 정지
 
-        boolean isPrivate, // 계정 공개
-
-        List<Post> posts
+        boolean isPrivate// 계정 공개
 ){
 
 }

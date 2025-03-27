@@ -16,4 +16,6 @@ public interface PostService {
     PostDto repost(Long postId, PostDto postDto);
     PostDto updatePost(Long postId, PostUpdateRequestDto request);
     boolean deletePost(Long postId);
+    Page<Post> getPostsByUser(User user, Pageable pageable);
+    Page<Post> getFeed(User user, Pageable pageable);
 }

@@ -51,6 +51,7 @@ public class User extends BaseEntity {
     @Setter
     private Date deletedAt;
 
+    @Setter
     private boolean isVerified;
 
     private boolean isLocked;
@@ -97,9 +98,9 @@ public class User extends BaseEntity {
                 .bio(userCreateDto.bio())
                 .avatarImageUrl(userCreateDto.avatarImageUrl())
                 .isPrivate(userCreateDto.isPrivate())
+                .isVerified(false)
                 .build();
     }
-
 
     public void updateProfile(String name, String bio, String avatarImageUrl, boolean isLocked, boolean isPrivate) {
         this.name = name;

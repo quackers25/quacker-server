@@ -4,6 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record JwtTokens(
+        Long userId,
         String accessToken,
         String refreshToken
 ){}
