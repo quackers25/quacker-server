@@ -4,14 +4,14 @@ import io.quacker.domain.post.dto.PostCreateRequestDto;
 import io.quacker.domain.post.dto.PostUpdateRequestDto;
 import io.quacker.domain.post.vo.SortBy;
 import io.quacker.domain.post.dto.PostDto;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PostService {
-    List<PostDto> getAllPosts(SortBy sortBy);
+    Page<PostDto> getAllPosts(SortBy sortBy, Pageable pageable);
     PostDto getPost(Long postId);
-    List<PostDto> getPostsByUserId(SortBy sortBy);
-    List<PostDto> searchPosts(String keyword, SortBy sortBy);
+    Page<PostDto> getPostsByUserId(SortBy sortBy, Pageable pageable);
+    Page<PostDto> searchPosts(String keyword, SortBy sortBy, Pageable pageable);
     PostDto addPost(PostCreateRequestDto request);
     PostDto repost(Long postId, PostDto postDto);
     PostDto updatePost(Long postId, PostUpdateRequestDto request);
