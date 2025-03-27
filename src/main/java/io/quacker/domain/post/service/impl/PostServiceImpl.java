@@ -8,7 +8,6 @@ import io.quacker.domain.post.dto.PostDto;
 import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.post.service.PostService;
 import io.quacker.domain.postimage.dao.PostImageRepository;
-import io.quacker.domain.postimage.entity.PostImage;
 import io.quacker.domain.postimage.service.PostImageService;
 import io.quacker.domain.user.entity.User;
 import io.quacker.domain.user.service.UserService;
@@ -16,6 +15,9 @@ import io.quacker.global.exception.CustomException;
 import io.quacker.global.service.FileUploadService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -32,9 +34,9 @@ public class PostServiceImpl implements PostService {
     // 모든 게시물 조회
     @Transactional
     @Override
-    public List<PostDto> getAllPosts(SortBy sortBy) {
-        List<Post> posts = postRepository.findAll(sortBy.getSort());
-        return PostDto.of(posts);
+    public Page<PostDto> getAllPosts(SortBy sortBy, Pageable pageable) {
+        return postRepository.findAll(getSortedPageable(pageable, sortBy))
+                .map(PostDto::from);
     }
 
     // 특정 게시물 상세 조회
@@ -43,22 +45,22 @@ public class PostServiceImpl implements PostService {
         return PostDto.from(findPostById(postId));
     }
 
-    // 특정 User ID 게시물 조회
+    // 현재 User ID 게시물 조회
     @Transactional
     @Override
-    public List<PostDto> getPostsByUserId(SortBy sortBy) {
+    public Page<PostDto> getPostsByUserId(SortBy sortBy, Pageable pageable) {
         User user = userService.getCurrentUser();
-        List<Post> userPosts = postRepository.findByUser(user, sortBy.getSort());
 
-        return PostDto.of(userPosts);
+        return postRepository.findByUser(user, getSortedPageable(pageable, sortBy))
+                .map(PostDto::from);
     }
 
     // 게시글 검색
     @Transactional
     @Override
-    public List<PostDto> searchPosts(String keyword, SortBy sortBy) {
-        List<Post> searchResults = postRepository.findByTextContainingIgnoreCase(keyword, sortBy.getSort());
-        return PostDto.of(searchResults);
+    public Page<PostDto> searchPosts(String keyword, SortBy sortBy, Pageable pageable) {
+        return postRepository.findByTextContainingIgnoreCase(keyword, getSortedPageable(pageable, sortBy))
+                .map(PostDto::from);
     }
 
     // 새 게시글 작성
@@ -162,6 +164,15 @@ public class PostServiceImpl implements PostService {
     private Post findPostById(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException("Post not found", 404));
+    }
+
+    //  페이징 메서드
+    private Pageable getSortedPageable(Pageable pageable, SortBy sortBy) {
+        return PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                sortBy.getSort()
+        );
     }
 
 }
