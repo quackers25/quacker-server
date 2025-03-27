@@ -26,7 +26,7 @@ public class AdminDetailsService implements UserDetailsService {
                         .orElseThrow(()-> new CustomException("유저가 존재하지않습니다", 404));
 
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN_READ"));
+        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         return AdminDetails.builder()
                 .id(admin.getId())
                 .username(username)
