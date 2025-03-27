@@ -1,5 +1,6 @@
 package io.quacker.global.config;
 
+import io.quacker.global.security.JwtAdminAuthenticationFilter;
 import io.quacker.global.security.JwtAuthenticationFilter;
 import io.quacker.global.security.JwtAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,9 +21,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private static final String[] WITHE_LIST =
-        {"/h2-console/**", "/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**"};
+        {"/h2-console/**", "/api/v1/auth/**", "/api/v1/admins/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**"};
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAdminAuthenticationFilter jwtAdminAuthenticationFilter;
 
     // BCrypt 인코더 추가
     @Bean
@@ -43,10 +44,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers(WITHE_LIST).permitAll()
                                 .requestMatchers("/api/v1/auth/logout").authenticated()
+                                .requestMatchers("/api/v1/admins").hasRole("ADMIN_READ")
                                 .anyRequest().authenticated()
             )
             .authenticationProvider(jwtTokenAuthenticationProvider)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(jwtAdminAuthenticationFilter, JwtAuthenticationFilter.class)
             .build();
     }
 
