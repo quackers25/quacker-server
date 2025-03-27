@@ -29,7 +29,7 @@ public class AdminAuthController {
         ResponseCookie accessTokenCookie = ResponseCookie.from("adminAccessToken", tokens.accessToken())
                 .httpOnly(true)
 //                .secure(true)  // HTTPS에서만 전송
-                .path("/api/v1/admins")     // 쿠키 경로 설정
+                .path("/")     // 쿠키 경로 설정
                 .maxAge(15 * 60) // 쿠키 만료시간 (7일)
 //                .sameSite("Strict") // Cross-site 요청 제한
                 .build();
@@ -62,7 +62,7 @@ public class AdminAuthController {
         JwtTokens tokens = adminService.refresh(refreshToken);
         ResponseCookie accessTokenCookie = ResponseCookie.from("adminAccessToken", tokens.accessToken())
                 .httpOnly(true)
-                .path("/api/v1/admins")
+                .path("/")
                 .maxAge(15 * 60) // 쿠키 만료시간 (7일)
                 .build();
         ResponseCookie refreshTokenCookie = ResponseCookie.from("adminRefreshToken", tokens.refreshToken())
@@ -79,8 +79,8 @@ public class AdminAuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(
-            @CookieValue(value = "accessToken") String accessToken,
-            @CookieValue(value = "refreshToken") String refreshToken
+            @CookieValue(value = "adminAccessToken") String accessToken,
+            @CookieValue(value = "adminRefreshToken") String refreshToken
 
     ) {
         adminService.logout(accessToken, refreshToken);
