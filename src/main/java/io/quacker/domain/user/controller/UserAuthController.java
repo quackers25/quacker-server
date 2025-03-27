@@ -10,6 +10,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,7 @@ import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
+@EnableMethodSecurity
 @RestController
 @RequestMapping("/api/v1/auth")
 public class UserAuthController {
@@ -108,8 +111,10 @@ public class UserAuthController {
      * 소유한 토큰 모두 만료 및 쿠키 삭제
      * @return
      */
-    @PostMapping("/logout")
+    @PreAuthorize("#userId == principal.userId")
+    @PostMapping("{userId}/logout")
     public ResponseEntity<?> logout(
+            @PathVariable("userId") Long userId,
             @CookieValue(value = "accessToken") String accessToken,
             @CookieValue(value = "refreshToken") String refreshToken
 
