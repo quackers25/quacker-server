@@ -247,7 +247,7 @@ public class UserService {
         String[] part = email.split("@");
         StringBuilder sb = new StringBuilder();
         sb.append(part[0].substring(0, 4)).append("****@").append(part[1]);
-        return Map.of("hint", sb.toString());
+        return Map.of("result", sb.toString());
     }
 
     /**
