@@ -144,4 +144,23 @@ public class Post extends BaseEntity {
                 .collect(java.util.stream.Collectors.toSet());
     }
 
+    public void addLike(PostLike postLike) {
+        if (this.likes == null) {
+            this.likes = new ArrayList<>();
+        }
+        this.likes.add(postLike);
+    }
+
+    public void removeLike(PostLike postLike) {
+        if (this.likes != null) {
+            this.likes.remove(postLike);
+        }
+    }
+
+    public List<PostLike> getLikes() {
+        if (this.likes == null) {
+            this.likes = new ArrayList<>();
+        }
+        return likes;
+    }
 }
