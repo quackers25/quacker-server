@@ -11,7 +11,6 @@ import io.quacker.domain.post.vo.SortBy;
 import io.quacker.domain.postimage.dao.PostImageRepository;
 import io.quacker.domain.postimage.service.PostImageService;
 import io.quacker.domain.postmention.service.PostMentionService;
-import io.quacker.domain.user.dao.UserRepository;
 import io.quacker.domain.user.entity.User;
 import io.quacker.domain.user.service.UserService;
 import io.quacker.global.exception.CustomException;
@@ -32,7 +31,6 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
-    private final UserRepository userRepository;
     private final UserService userService;
     private final PostImageService postImageService;
     private final FileUploadService fileUploadService;
