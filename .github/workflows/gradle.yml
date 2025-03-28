@@ -29,7 +29,7 @@ jobs:
           arguments: clean bootJar
 
       - name: docker image build
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/quacker-be .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/quacker .
 
       - name: docker hub login
         uses: docker/login-action@v3
@@ -38,7 +38,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: docker hub push
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/quacker-be
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/quacker
 
       - name: deploy on AWS EC2
         uses: appleboy/ssh-action@master
@@ -48,7 +48,7 @@ jobs:
           key: ${{ secrets.KEY }}
           script: |
             sudo docker rm -f quacker-be
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/quacker-be
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/quacker
             sudo docker run -d -p 8080:8080 \
-            --name quacker-be\
-            ${{ secrets.DOCKERHUB_USERNAME }}/quacker-be
+            --name quacker-be \
+            ${{ secrets.DOCKERHUB_USERNAME }}/quacker
