@@ -1,5 +1,7 @@
 package io.quacker.domain.admin.controller;
 
+
+import io.quacker.domain.admin.controller.api.AdminAuthApi;
 import io.quacker.domain.admin.dto.AdminCreateDto;
 import io.quacker.domain.admin.dto.AdminLoginDto;
 import io.quacker.domain.admin.service.AdminService;
@@ -17,7 +19,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/admins/auth")
 @RequiredArgsConstructor
-public class AdminAuthController {
+
+public class AdminAuthController implements AdminAuthApi {
 
     private final AdminService adminService;
 

@@ -8,9 +8,12 @@ import io.quacker.domain.admin.dto.AdminLoginDto;
 import io.quacker.domain.admin.entity.Admin;
 import io.quacker.domain.auth.dto.JwtTokens;
 import io.quacker.domain.auth.service.JwtBlacklistService;
-import io.quacker.domain.user.entity.User;
+
+import io.quacker.domain.hashtag.service.HashtagService;
+import io.quacker.domain.post.entity.Post;
+import io.quacker.domain.post.service.PostService;
 import io.quacker.global.exception.CustomException;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -18,6 +21,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class AdminService {
@@ -27,17 +34,26 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
     private final JwtBlacklistService jwtBlacklistService;
+    private final PostService postService;
+    private final HashtagService hashtagService;
+
 
     public AdminService(
             AdminRepository adminRepository,
             @Value("${admin.create-code}") String createCode,
-            PasswordEncoder passwordEncoder, JwtTokenUtil jwtTokenUtil, JwtBlacklistService jwtBlacklistService
+
+            PasswordEncoder passwordEncoder, JwtTokenUtil jwtTokenUtil, JwtBlacklistService jwtBlacklistService, PostService postService, HashtagService hashtagService
+
     ) {
         this.adminRepository = adminRepository;
         CREATE_CODE = createCode;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenUtil = jwtTokenUtil;
         this.jwtBlacklistService = jwtBlacklistService;
+
+        this.postService = postService;
+        this.hashtagService = hashtagService;
+
     }
 
     /**
@@ -101,7 +117,7 @@ public class AdminService {
         var admin = Admin.builder()
                 .username(username)
                 .password(hashed)
-                .role("ROLE_ADMIN_READ")
+                .role("ROLE_ADMIN")
                 .build();
 
         adminRepository.save(admin);
@@ -155,5 +171,15 @@ public class AdminService {
         var admin =adminRepository.findById(id)
                 .orElseThrow(() -> new CustomException("관리자가 존재하지 않음", HttpStatus.FORBIDDEN.value()));
         return AdminDto.from(admin);
+    }
+
+    public int deletePostByHahstag(String hashtagName) {
+        AtomicInteger cnt = new AtomicInteger();
+        List<Post> posts = hashtagService.findPostsByHashtag(hashtagName);
+        posts.forEach(post -> {
+            if (postService.deletePost(post.getId()))
+                cnt.getAndIncrement();
+        });
+        return cnt.get();
     }
 }
