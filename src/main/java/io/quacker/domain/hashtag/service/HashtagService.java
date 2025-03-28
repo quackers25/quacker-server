@@ -87,12 +87,11 @@ public class HashtagService {
             });
         }
 
-        // 새로운 해시태그 추가 및 카운트 증가
+        // 새로운 해시태그 추가
         Set<Hashtag> newHashtags = processHashtags(content);
         newHashtags.forEach(hashtag -> {
             HashtagPost hashtagPost = HashtagPost.of(post, hashtag);
             post.addHashtagPost(hashtagPost);
-            hashtag.incrementPostCount();
         });
     }
 
