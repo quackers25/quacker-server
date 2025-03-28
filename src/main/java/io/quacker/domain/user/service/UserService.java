@@ -307,9 +307,10 @@ public class UserService {
     /**
      * REQ_013	공개여부 토글
      */
-    public void toggleVisibility() {
+    public boolean toggleVisibility() {
         var user = getCurrentUser();
         user.updateVisibility(!user.isPrivate());
+        return user.isPrivate();
     }
 
     /**
@@ -317,6 +318,8 @@ public class UserService {
      * @return
      */
     public Map<?,?> sendCode(String email) {
+        if(!userRepository.existsByEmail(email))
+            throw new CustomException("유저를 찾을 수 없음", 404);
         return Map.of("sentAT", emailCodeService.sendCode(email));
     }
 

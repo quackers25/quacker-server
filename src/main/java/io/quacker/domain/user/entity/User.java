@@ -14,13 +14,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -82,27 +83,33 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<PostLike> likes = new ArrayList<>();
 
+    public static User fromCreateDtoWithHashedPassword(UserCreateDto userCreateDto,
+                                                       String hashedPw) {
+        return User.builder()
+            .email(userCreateDto.email())
+            .password(hashedPw)
+            .name(userCreateDto.name())
+            .bio(userCreateDto.bio())
+            .avatarImageUrl(userCreateDto.avatarImageUrl())
+            .isPrivate(userCreateDto.isPrivate())
+            .isVerified(false)
+            .build();
+    }
+
     public void updateVisibility(boolean isPrivate) {
         this.isPrivate = isPrivate;
     }
 
-    public void freeze() { this.isLocked = false; }
-
-    public void unfreeze() { this.isLocked = true; }
-
-    public static User fromCreateDtoWithHashedPassword(UserCreateDto userCreateDto, String hashedPw) {
-        return User.builder()
-                .email(userCreateDto.email())
-                .password(hashedPw)
-                .name(userCreateDto.name())
-                .bio(userCreateDto.bio())
-                .avatarImageUrl(userCreateDto.avatarImageUrl())
-                .isPrivate(userCreateDto.isPrivate())
-                .isVerified(false)
-                .build();
+    public void freeze() {
+        this.isLocked = false;
     }
 
-    public void updateProfile(String name, String bio, String avatarImageUrl, boolean isLocked, boolean isPrivate) {
+    public void unfreeze() {
+        this.isLocked = true;
+    }
+
+    public void updateProfile(String name, String bio, String avatarImageUrl, boolean isLocked,
+                              boolean isPrivate) {
         this.name = name;
         this.bio = bio;
         this.avatarImageUrl = avatarImageUrl;
@@ -114,5 +121,8 @@ public class User extends BaseEntity {
         this.password = password;
     }
 
+    public void addPostMention(PostMention postMention) {
+        this.postMentions.add(postMention);
+    }
 }
 

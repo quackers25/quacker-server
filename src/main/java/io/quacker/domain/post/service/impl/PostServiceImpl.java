@@ -1,29 +1,29 @@
 package io.quacker.domain.post.service.impl;
 
-import io.quacker.domain.post.dto.PostCreateRequestDto;
-import io.quacker.domain.post.dto.PostUpdateRequestDto;
-import io.quacker.domain.post.vo.SortBy;
 import io.quacker.domain.hashtag.service.HashtagService;
 import io.quacker.domain.post.dao.PostRepository;
+import io.quacker.domain.post.dto.PostCreateRequestDto;
 import io.quacker.domain.post.dto.PostDto;
+import io.quacker.domain.post.dto.PostUpdateRequestDto;
 import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.post.service.PostService;
+import io.quacker.domain.post.vo.SortBy;
 import io.quacker.domain.postimage.dao.PostImageRepository;
 import io.quacker.domain.postimage.service.PostImageService;
+import io.quacker.domain.postmention.service.PostMentionService;
+import io.quacker.domain.user.dao.UserRepository;
 import io.quacker.domain.user.entity.User;
 import io.quacker.domain.user.service.UserService;
 import io.quacker.global.exception.CustomException;
 import io.quacker.global.service.FileUploadService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import io.quacker.domain.user.dao.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,19 +37,20 @@ public class PostServiceImpl implements PostService {
     private final PostImageService postImageService;
     private final FileUploadService fileUploadService;
     private final HashtagService hashtagService;
+    private final PostMentionService postMentionService;
 
     // 모든 게시물 조회
     @Override
     public Page<PostDto> getAllPosts(SortBy sortBy, Pageable pageable) {
         return postRepository.findAll(getSortedPageable(pageable, sortBy))
-                .map(PostDto::from);
+            .map(PostDto::from);
     }
 
     // 특정 게시물 상세 조회
     @Override
     public PostDto getPost(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
+            .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
         return PostDto.from(post);
     }
 
@@ -60,7 +61,7 @@ public class PostServiceImpl implements PostService {
         User user = userService.getCurrentUser();
 
         return postRepository.findByUser(user, getSortedPageable(pageable, sortBy))
-                .map(PostDto::from);
+            .map(PostDto::from);
 
     }
 
@@ -68,7 +69,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<PostDto> searchPosts(String keyword, SortBy sortBy, Pageable pageable) {
         return postRepository.findByTextContainingIgnoreCase(keyword, getSortedPageable(pageable, sortBy))
-                .map(PostDto::from);
+            .map(PostDto::from);
     }
 
     // 새 게시글 작성
@@ -77,26 +78,27 @@ public class PostServiceImpl implements PostService {
         User user = userService.getCurrentUser();
 
         Post newPost = Post.builder()
-                .text(request.text())
-                .user(user)
-                .build();
+            .text(request.text())
+            .user(user)
+            .build();
 
         // 먼저 Post 저장
         Post savedPost = postRepository.save(newPost);
+        postMentionService.addPostMention(savedPost);
 
         // 이미지가 있는 경우 처리
         if (request.images() != null && !request.images().isEmpty()) {
             List<String> imageUrls = request.images().stream()
-                    .limit(4) // 최대 4개 제한
-                    .map(fileUploadService::uploadImage) // S3에 업로드
-                    .toList();
+                .limit(4) // 최대 4개 제한
+                .map(fileUploadService::uploadImage) // S3에 업로드
+                .toList();
 
             postImageService.saveImagesByUrls(imageUrls, savedPost);
         }
-        
+
         // 해시태그 처리
         hashtagService.updatePostHashtags(savedPost, request.text());
-        
+
         return PostDto.from(savedPost);
     }
 
@@ -105,15 +107,15 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostDto repost(Long postId, PostDto postDto) {
         Post originPost = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException("원본 게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
+            .orElseThrow(() -> new CustomException("원본 게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
 
         User user = userService.getCurrentUser();
 
         Post retweet = Post.builder()
-                .text(postDto.text() == null ? "" : postDto.text()) // 리트윗은 내용이 없을 수도 있음
-                .user(user)
-                .originPost(originPost)
-                .build();
+            .text(postDto.text() == null ? "" : postDto.text()) // 리트윗은 내용이 없을 수도 있음
+            .user(user)
+            .originPost(originPost)
+            .build();
 
         originPost.incrementRepostCount(); // 원본 게시글의 repostCount 증가
         postRepository.save(originPost); // 명시적으로 저장
@@ -130,7 +132,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto updatePost(Long postId, PostUpdateRequestDto request) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
+            .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
 
         // 텍스트 수정
         post.updateText(request.text());
@@ -149,8 +151,8 @@ public class PostServiceImpl implements PostService {
             }
 
             List<String> newImageUrls = request.newImages().stream()
-                    .map(fileUploadService::uploadImage)
-                    .toList();
+                .map(fileUploadService::uploadImage)
+                .toList();
 
             postImageService.saveImagesByUrls(newImageUrls, post);
         }
@@ -166,11 +168,11 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public boolean deletePost(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
+            .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
 
         // 해시태그 처리
         hashtagService.handlePostDeletion(post);
-        
+
         postRepository.delete(post);
         return true;
     }
@@ -183,9 +185,9 @@ public class PostServiceImpl implements PostService {
     //  페이징 메서드
     private Pageable getSortedPageable(Pageable pageable, SortBy sortBy) {
         return PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                sortBy.getSort()
+            pageable.getPageNumber(),
+            pageable.getPageSize(),
+            sortBy.getSort()
         );
     }
 
