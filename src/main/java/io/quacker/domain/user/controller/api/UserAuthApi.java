@@ -20,7 +20,6 @@ public interface UserAuthApi {
     /**
      * <h4>로그인</h4>
      * @param userLoginDto
-     * @param errors
      * @return
      */
     @Operation(summary = "로그인", description = "로그인을 수행합니다.")
@@ -65,12 +64,11 @@ public interface UserAuthApi {
                     })),
     })
     @PostMapping("/login")
-    ResponseEntity<?> login(@RequestBody @Valid UserLoginDto userLoginDto, Errors errors);
+    ResponseEntity<?> login(@RequestBody @Valid UserLoginDto userLoginDto);
 
     /**
      * 가입
      * @param userCreateDto
-     * @param errors
      * @return ResponseEntity
      */
     @Operation(summary = "가입", description = "회원가입을 수행합니다.")
@@ -121,7 +119,7 @@ public interface UserAuthApi {
                         """)}
             ))})
     @PostMapping("/join")
-    ResponseEntity<?> join(@RequestBody @Valid UserCreateDto userCreateDto, Errors errors);
+    ResponseEntity<?> join(@RequestBody @Valid UserCreateDto userCreateDto);
 
     /**
      * 소유한 토큰 모두 만료 및 쿠키 삭제
