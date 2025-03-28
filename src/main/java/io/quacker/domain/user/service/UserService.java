@@ -239,7 +239,7 @@ public class UserService {
      * @param hint 사용자가 입력한 힌트
      * @return 마스킹된 이메일
      */
-    public String getEmailByHint(String hint) {
+    public Map<String,String> getEmailByHint(String hint) {
         User user = userRepository.findByHint(hint)
                 .orElseThrow(()-> new CustomException("유저를 찾을 수 없음", 404));
 
@@ -247,7 +247,7 @@ public class UserService {
         String[] part = email.split("@");
         StringBuilder sb = new StringBuilder();
         sb.append(part[0].substring(0, 4)).append("****@").append(part[1]);
-        return sb.toString();
+        return Map.of("hint", sb.toString());
     }
 
     /**
