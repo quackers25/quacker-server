@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers(WITHE_LIST).permitAll()
                                 .requestMatchers("/api/v1/auth/logout").authenticated()
-                                .requestMatchers("/api/v1/admins").hasRole("ADMIN_READ")
+                                .requestMatchers("/api/v1/admins").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
                 .authenticationProvider(jwtTokenAuthenticationProvider)
