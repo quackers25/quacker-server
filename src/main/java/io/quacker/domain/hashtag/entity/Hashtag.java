@@ -54,8 +54,10 @@ public class Hashtag {
     }
 
     public void addHashtagPost(HashtagPost hashtagPost) {
-        this.hashtagPosts.add(hashtagPost);
-        incrementPostCount();
+        if (!this.hashtagPosts.contains(hashtagPost)) {
+            this.hashtagPosts.add(hashtagPost);
+            incrementPostCount();
+        }
     }
 
     public void removeHashtagPost(HashtagPost hashtagPost) {
