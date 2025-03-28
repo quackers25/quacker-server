@@ -64,6 +64,7 @@ public class SecurityConfig {
                             res.getWriter().write("{\"message\": \"권한이 없습니다.\"}");
                         })
                 )
+                // TODO: SignatureException 핸들링 추가할 것
             .build();
     }
 
