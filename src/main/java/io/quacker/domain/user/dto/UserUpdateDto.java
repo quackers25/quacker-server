@@ -13,8 +13,6 @@ import java.util.List;
 @Builder
 public record UserUpdateDto(
 
-        String nickname,
-
         @Schema(description = "사용자 새 이름", example = "newOne")
         String name,
 
