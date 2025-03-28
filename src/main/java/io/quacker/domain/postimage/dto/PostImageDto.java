@@ -26,6 +26,11 @@ public record PostImageDto(
 
     // 리스트 변환 (List<PostImage> → List<PostImageDto>)
     public static List<PostImageDto> fromEntities(List<PostImage> postImages) {
-        return postImages.stream().map(PostImageDto::fromEntity).toList();
+        if (postImages == null) {
+            return List.of(); // 빈 리스트 반환
+        }
+        return postImages.stream()
+                .map(PostImageDto::fromEntity)
+                .toList();
     }
 }
