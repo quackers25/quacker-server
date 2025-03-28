@@ -307,9 +307,10 @@ public class UserService {
     /**
      * REQ_013	공개여부 토글
      */
-    public void toggleVisibility() {
+    public boolean toggleVisibility() {
         var user = getCurrentUser();
         user.updateVisibility(!user.isPrivate());
+        return user.isPrivate();
     }
 
     /**
