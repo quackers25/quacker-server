@@ -1,5 +1,6 @@
 package io.quacker.domain.admin.controller;
 
+
 import io.quacker.domain.admin.controller.api.AdminPostsApi;
 import io.quacker.domain.admin.service.AdminService;
 import io.quacker.domain.post.service.PostService;

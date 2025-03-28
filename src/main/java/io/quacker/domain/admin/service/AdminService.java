@@ -8,10 +8,12 @@ import io.quacker.domain.admin.dto.AdminLoginDto;
 import io.quacker.domain.admin.entity.Admin;
 import io.quacker.domain.auth.dto.JwtTokens;
 import io.quacker.domain.auth.service.JwtBlacklistService;
+
 import io.quacker.domain.hashtag.service.HashtagService;
 import io.quacker.domain.post.entity.Post;
 import io.quacker.domain.post.service.PostService;
 import io.quacker.global.exception.CustomException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -19,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,18 +37,23 @@ public class AdminService {
     private final PostService postService;
     private final HashtagService hashtagService;
 
+
     public AdminService(
             AdminRepository adminRepository,
             @Value("${admin.create-code}") String createCode,
+
             PasswordEncoder passwordEncoder, JwtTokenUtil jwtTokenUtil, JwtBlacklistService jwtBlacklistService, PostService postService, HashtagService hashtagService
+
     ) {
         this.adminRepository = adminRepository;
         CREATE_CODE = createCode;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenUtil = jwtTokenUtil;
         this.jwtBlacklistService = jwtBlacklistService;
+
         this.postService = postService;
         this.hashtagService = hashtagService;
+
     }
 
     /**
