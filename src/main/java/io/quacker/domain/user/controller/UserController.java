@@ -1,5 +1,6 @@
 package io.quacker.domain.user.controller;
 
+import io.quacker.domain.user.controller.api.UserApi;
 import io.quacker.domain.user.dto.UserUpdateDto;
 import io.quacker.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -15,17 +16,17 @@ import java.util.Map;
 @RestController
 @EnableMethodSecurity
 @RequestMapping("/api/v1/users")
-public class UserController {
+public class UserController implements UserApi {
 
     private final UserService userService;
 
+    //비공개 토글
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or #userId == principal.userId")
     @PatchMapping("/{userId}/visibility")
-    public ResponseEntity<?> toggleVisibility(){
-        userService.toggleVisibility();
+    public ResponseEntity<?> toggleVisibility(@PathVariable("userId") Long userId){
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(Map.of("result", true));
+                .body(Map.of("isPrivate", userService.toggleVisibility()));
     }
 
     //삭제 "요청"

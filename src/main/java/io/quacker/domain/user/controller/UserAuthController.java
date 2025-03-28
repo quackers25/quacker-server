@@ -1,8 +1,10 @@
 package io.quacker.domain.user.controller;
 
 import io.quacker.domain.auth.dto.JwtTokens;
+import io.quacker.domain.user.controller.api.UserAuthApi;
 import io.quacker.domain.user.dto.*;
 import io.quacker.domain.user.service.UserService;
+import io.quacker.global.exception.CustomException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +31,7 @@ public class UserAuthController implements UserAuthApi {
 
     @Override
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid UserLoginDto userLoginDto, Errors errors) {
-        if (errors.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
-        }
+    public ResponseEntity<?> login(@RequestBody @Valid UserLoginDto userLoginDto) {
         JwtTokens tokens = userService.login(userLoginDto);
         // 쿠키 생성
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", tokens.accessToken())
@@ -59,10 +58,7 @@ public class UserAuthController implements UserAuthApi {
 
     @Override
     @PostMapping("/join")
-    public ResponseEntity<?> join(@RequestBody @Valid UserCreateDto userCreateDto, Errors errors) {
-        if (errors.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
-        }
+    public ResponseEntity<?> join(@RequestBody @Valid UserCreateDto userCreateDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.join(userCreateDto));
     }
 
@@ -125,14 +121,19 @@ public class UserAuthController implements UserAuthApi {
     @Override
     @GetMapping("/hint")
     public ResponseEntity<?> getEmailhint(@RequestBody UserHintDto userHintDto) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getEmailByHint(userHintDto.hint()));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                Map.of("result", userService.getEmailByHint(userHintDto.hint()))
+        );
     }
 
     @Override
     @PostMapping("/duplicate-email")
-    public ResponseEntity<?> duplicateEmail(@RequestBody UserEmailDto userEmailDto) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.checkDuplicateEmail(userEmailDto.email()));
+    public ResponseEntity<?> duplicateEmail(@RequestBody @Valid UserEmailDto userEmailDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                Map.of("result", userService.checkDuplicateEmail(userEmailDto.email()))
+        );
     }
+
 
     @Override
     @GetMapping("/username/{username}")
@@ -140,23 +141,30 @@ public class UserAuthController implements UserAuthApi {
         return ResponseEntity.status(HttpStatus.OK).body(userService.checkDuplicateUsername(userDto.name()));
     }
 
+    // 이메일 인증 발송
     @Override
     @PostMapping("/send-code")
-    public ResponseEntity<?> createEmailSession(@RequestBody UserEmailDto userEmailDto) {
+    public ResponseEntity<?> createEmailSession(@RequestBody @Valid UserEmailDto userEmailDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.sendCode(userEmailDto.email()));
     }
 
+    // 현재 캐시에 저장된 코드와 검증
     @Override
     @PutMapping("/verify-email")
-    public ResponseEntity<?> verifyEmail(@RequestBody UserEmailCodeDto userEmailCodeDto) {
+    public ResponseEntity<?> verifyEmail(
+            @RequestBody @Valid UserEmailCodeDto userEmailCodeDto
+    ) {
         String email = userEmailCodeDto.email();
         String code = userEmailCodeDto.code();
-        return ResponseEntity.status(HttpStatus.OK).body(userService.verifyEmailCode(email, code));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                Map.of("isVerified", userService.verifyEmailCode(email, code))
+        );
     }
 
+    // 사용자 비밀번호 변경(인증 세션 필요)
     @Override
     @PutMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody UserResetPasswordDto userResetPasswordDto) {
+    public ResponseEntity<?> resetPassword(@RequestBody @Valid UserResetPasswordDto userResetPasswordDto) {
         userService.resetPassword(userResetPasswordDto);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("result", true));
     }

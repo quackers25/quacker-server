@@ -32,7 +32,7 @@ public class PostLikeService {
         boolean isLiked = postLikeRepository.findByPostAndUser(post, user)
                 .map(like -> {
                     postLikeRepository.delete(like);
-                    post.decrementLikeCount();
+                    post.decrementRepostCount();
                     return false;
                 })
                 .orElseGet(() -> {

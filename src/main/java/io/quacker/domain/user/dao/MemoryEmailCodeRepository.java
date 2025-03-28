@@ -21,6 +21,9 @@ public class MemoryEmailCodeRepository implements EmailCodeRepository {
 
     @Override
     public Optional<String> get(String key) {
+        var item = mem.get(key);
+        if(item == null)
+            return Optional.empty();
         return Optional.ofNullable(mem.get(key).getCode());
     }
 
