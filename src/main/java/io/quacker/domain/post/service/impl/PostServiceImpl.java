@@ -168,6 +168,13 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new CustomException("게시물을 찾을 수 없습니다.", HttpStatus.NOT_FOUND.value()));
 
+        // 리포스트인 경우 원본 게시글의 repostCount 감소
+        if (post.getOriginPost() != null) {
+            Post originPost = post.getOriginPost();
+            originPost.decrementRepostCount();
+            postRepository.save(originPost); // 원본 게시글 수정 사항 반영
+        }
+
         // 해시태그 처리
         hashtagService.handlePostDeletion(post);
 
