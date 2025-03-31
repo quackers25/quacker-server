@@ -144,7 +144,7 @@ public class AdminService {
 
         // 토큰 재발급
         // TODO 토큰 발급로직 일반화 할 것
-        String newAccessToken = jwtTokenUtil.generateAccessToken(admin.getId(), admin.getUsername(), admin.getUsername());
+        String newAccessToken = jwtTokenUtil.generateAccessToken(admin.getId(), admin.getUsername(), "admin");
         String newRefreshToken = jwtTokenUtil.generateRefreshToken(admin.getId());
 
         // 토큰 Dto 반환
