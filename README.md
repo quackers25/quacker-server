@@ -1,5 +1,6 @@
 # Quackers
 트위터 클론 프로젝트 Quacker로 빌드 전환, CI/CD 구축, Spring Boot 최신화, 테스트 및 API 명세화를 통해 안정성과 확장성을 강화한다.
+![logo-500-500-none](https://github.com/user-attachments/assets/99e2c5c1-b219-4f38-9741-ac4c27f8a72a)
 
 <br></br>
 ## 팀원
