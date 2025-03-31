@@ -37,12 +37,11 @@ public class JwtAdminAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         // 허용된 URI는 인증시도 하지않음
-        // 추후 admin과 user이 도메인 분리된다면 사용할 것
-//        String uri = request.getRequestURI();
-//        if (!uri.startsWith("/api/v1/admins")) {
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
+        String uri = request.getRequestURI();
+        if (!uri.startsWith("/api/v1/admins")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
 
         // 인증 헤더 추출
@@ -65,12 +64,6 @@ public class JwtAdminAuthenticationFilter extends OncePerRequestFilter {
 
         // 사용자 email(username) 추출
         String username = jwtTokenUtil.extractEmail(token);
-
-        // 어드민 토큰이 아니라면
-        if (!jwtTokenUtil.extractRole(token).equals("admin")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         // 새 토큰 발급, when 유저이름이 존재하지않고 현재 SecurityContext에 인증 정보가 없는 경우
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
