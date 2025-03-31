@@ -39,7 +39,7 @@
     
 - **API 명세서**
   - 배포하여 swagger-ui 참조
-  - [변환된 yaml 파일]()
+  - [변환된 yaml 파일](https://github.com/quackers25/quacker-server/blob/dev/api.yaml)
   
 - **ER 다이어그램**  
   ![image](https://github.com/user-attachments/assets/db486224-6888-425c-9fc7-6f1cf40e734d)
