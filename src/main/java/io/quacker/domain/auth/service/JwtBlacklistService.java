@@ -59,8 +59,8 @@ public class JwtBlacklistService {
      * 현시간 부로 만료된 토큰을 모두 제거
      * 10초마다 삭제
      */
-    @Scheduled(fixedDelay = 10000)
-    public void deleteExpiratedJwtItem() {
-        ((MemoryJwtRepository) jwtRepository).deleteExpiredItem();
-    }
+//    @Scheduled(fixedDelay = 10000)
+//    public void deleteExpiratedJwtItem() {
+//        ((MemoryJwtRepository) jwtRepository).deleteExpiredItem();
+//    }
 }

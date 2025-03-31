@@ -12,7 +12,6 @@ import java.util.*;
 @EnableScheduling
 public class MemoryJwtRepository implements JwtRepository {
 
-    //TODO 재발급 limit을 위한 카운트?
     private final Map<String, JwtItem> mem = new HashMap<>();
 
     @Override
@@ -22,7 +21,17 @@ public class MemoryJwtRepository implements JwtRepository {
 
     @Override
     public Optional<String> get(String key) {
-        return Optional.ofNullable(mem.get(key).getTokenId().toString());
+        var item = mem.get(key);
+        if (item == null) {
+            return Optional.empty();
+        }
+
+        //passive delete
+        if (item.getExp().before(new Date())) {
+            mem.remove(key);
+        }
+
+        return Optional.of(item.getTokenId().toString());
     }
 
     @Override
